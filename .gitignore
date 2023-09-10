@@ -3,5 +3,6 @@
 .settings
 .mxproject
 .project
+.metadata
 
 build

@@ -4,5 +4,16 @@ project("Software" C CXX ASM)
 
 include(cmake/st-project.cmake)
 
-add_executable(${PROJECT_NAME})
+include_directories(
+    ${TARGET_NAME} PRIVATE
+    "${PROJECT_SOURCE_DIR}/App"
+    "${PROJECT_SOURCE_DIR}/App/Display"
+    "${PROJECT_SOURCE_DIR}/App/Calendar"
+)
+
+add_executable(${PROJECT_NAME}
+    "App/safe_days.cpp"
+    "App/Display/display.cpp"
+)
+
 add_st_target_properties(${PROJECT_NAME})

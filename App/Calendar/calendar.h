@@ -20,17 +20,12 @@ extern "C" {
  */
 #include <stdint.h>
 
-#include "stm32g0xx_hal_rtc.h"
-
 /*
  *  Class Definition
  */
 
 class Calendar {
   public:
-    Calendar(RTC_HandleTypeDef *const sys_rtc_instance);
-    ~Calendar();
-
     enum class DaysOfWeek { MONDAY = 1, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY };
 
     enum class Months {
@@ -48,29 +43,36 @@ class Calendar {
         DECEMBER
     };
 
-    typedef struct date_t {
+    struct date_t {
         uint8_t day;
         uint8_t month;
         uint8_t year;
     };
 
-    typedef struct time_t {
+    struct time_t {
         uint8_t hours;
         uint8_t minutes;
         uint8_t seconds;
     };
 
-    typedef struct calendar {
+    struct calendar {
         date_t date;
     };
 
-    void Init(RTC_HandleTypeDef *const sys_rtc_instance);
 
-    void SetTime(time_t time);
-    void SetDate(date_t date);
+    // virtual void init() = 0;
+    virtual void setTime(time_t time) = 0;
+    virtual void setDate(date_t date) = 0;
+    // virtual void setYear(year_t year) = 0;
 
-  private:
-};   // namespace Calendar
+    static Calendar *getInstance(void);
+
+  protected:
+    static date_t date;
+    static time_t time;
+    static Calendar *instance;
+
+};
 
 #ifdef __cplusplus
 }

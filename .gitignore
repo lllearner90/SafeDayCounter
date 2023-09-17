@@ -4,5 +4,8 @@
 .mxproject
 .project
 .metadata
+.editorconfig
 
-build
+build/*
+Debug/*
+Release/*

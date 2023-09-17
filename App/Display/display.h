@@ -21,25 +21,46 @@ extern "C" {
 
 #include "stdint.h"
 
+#include "calendar.h"
+
 /*
  *  Class Definition
  */
 
 class Display {
-public:
+  public:
+    Display *getInstance(void);
+
+    void setTime(Calendar::time_t time);
+    void setSafeDayCount(int safe_days);
+    void setSafeYearCount(int safe_years);
+
+    // No usecase to actually implement these routines
+    // void getTime();
+    // void getSafeDayCount();
+    // void getSafeYearCount();
+
+    virtual void update(void);
+
+  private:
+    // Data is stored in BCD
+    enum DISPLAY_BYTE_POS {
+        TIME_HOUR = 0,    // Max 24 hrs, so 1 byte
+        TIME_MIN = 1,     // Max 59 min, so 1 byte
+        DAY_COUNT = 2,    // Max 4 digits to display(9999), so 2 byte
+        YEAR_COUNT = 4,   // Max 2 digit(99 year), so 1 byte
+        MAX_SIZE = 5
+    };
+
+    uint8_t display_buf[static_cast<uint16_t>(DISPLAY_BYTE_POS::MAX_SIZE)];
+
+    static Display *instance;
+
     Display(/* args */);
-    ~Display();
-    uint8_t *Serialize();
-    uint8_t *Deserialize();
-    void Update(void);
-private:
-    //
 };
-
-
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // End of _DISPLAY_H_
+#endif   // End of _DISPLAY_H_

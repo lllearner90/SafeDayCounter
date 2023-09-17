@@ -9,11 +9,16 @@ include_directories(
     "${PROJECT_SOURCE_DIR}/App"
     "${PROJECT_SOURCE_DIR}/App/Display"
     "${PROJECT_SOURCE_DIR}/App/Calendar"
+
+    "${PROJECT_SOURCE_DIR}/App/Utility"
 )
 
 add_executable(${PROJECT_NAME}
     "App/safe_days.cpp"
     "App/Display/display.cpp"
+    "App/Calendar/calendar_stm32.cpp"
+
+    "App/Utility/bcd.cpp"
 )
 
 add_st_target_properties(${PROJECT_NAME})

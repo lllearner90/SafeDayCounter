@@ -23,14 +23,13 @@
  *  Function Definitions
  */
 
-Calendar *Calendar::instance = nullptr;
+static RTC_HandleTypeDef *rtc_instance = nullptr;
 
 Calendar *CalendarSTM32::getInstance(void) {
-    if (!instance) {
-        if (!rtc_instance) {
-            return new CalendarSTM32();
-        }
+    if (!rtc_instance) {
+        return new CalendarSTM32();
     }
+
     return nullptr;
 }
 
@@ -43,7 +42,7 @@ void CalendarSTM32::init(RTC_HandleTypeDef *instance) {
 void CalendarSTM32::setTime(time_t time) {
     RTC_TimeTypeDef sTime = {0};
 
-    sTime.Hours = binaryToBCD(time.hours);
+    sTime.Hours   = binaryToBCD(time.hours);
     sTime.Minutes = binaryToBCD(time.minutes);
     sTime.Seconds = binaryToBCD(time.seconds);
 
@@ -55,11 +54,15 @@ void CalendarSTM32::setTime(time_t time) {
 void CalendarSTM32::setDate(date_t date) {
     RTC_DateTypeDef sDate = {0};
 
-    sDate.Date = binaryToBCD(date.day);
-    sDate.Month = binaryToBCD(date.month);
-    sDate.Year = binaryToBCD(date.year);
+    sDate.Date  = binaryToBCD(date.day);
+    sDate.Month = binaryToBCD(static_cast<uint8_t>(date.month));
+    sDate.Year  = binaryToBCD(date.year);
 
     if (HAL_RTC_SetDate(rtc_instance, &sDate, RTC_FORMAT_BCD) != HAL_OK) {
         // TODO: Throw an error
     }
 }
+
+Calendar::time_t CalendarSTM32::getTime(void) { return Calendar::time_t(); }
+
+Calendar::date_t CalendarSTM32::getDate(void) { return Calendar::date_t(); }

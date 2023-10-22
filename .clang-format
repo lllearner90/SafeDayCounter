@@ -19,6 +19,22 @@ SpacesBeforeTrailingComments: 3
 #   AlwaysBreakAfterReturnType: TopLevelDefinitions
 #  #define SHORT_NAME       42
 #  #define LONGER_NAME      0x007f   # does nice spacing for macros
-AlignConsecutiveMacros: Consecutive
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  AlignCompound: true
+  PadOperators: true
 # use \n instead of \r\n
 UseCRLF: false
+
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignEscapedNewlines: true
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Right
+AlignOperands: Align
+
+BracedInitializerIndentWidth: 2
+
+BreakBeforeBinaryOperators: NonAssignment

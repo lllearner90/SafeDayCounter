@@ -11,10 +11,6 @@
 #ifndef _DISPLAY_H_
 #define _DISPLAY_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*
  *  Includes
  */
@@ -29,7 +25,7 @@ extern "C" {
 
 class Display {
   public:
-    Display *getInstance(void);
+    static Display *getInstance(void);
 
     void setTime(Calendar::time_t time);
     void setSafeDayCount(int safe_days);
@@ -40,27 +36,23 @@ class Display {
     // void getSafeDayCount();
     // void getSafeYearCount();
 
-    virtual void update(void);
+    void update(void);
 
-  private:
+    void selfTest(void);
+
+  protected:
     // Data is stored in BCD
     enum DISPLAY_BYTE_POS {
-        TIME_HOUR = 0,    // Max 24 hrs, so 1 byte
-        TIME_MIN = 1,     // Max 59 min, so 1 byte
-        DAY_COUNT = 2,    // Max 4 digits to display(9999), so 2 byte
+        TIME_HOUR  = 0,   // Max 24 hrs, so 1 byte
+        TIME_MIN   = 1,   // Max 59 min, so 1 byte
+        DAY_COUNT  = 2,   // Max 4 digits to display(9999), so 2 byte
         YEAR_COUNT = 4,   // Max 2 digit(99 year), so 1 byte
-        MAX_SIZE = 5
+        MAX_SIZE   = 5
     };
-
     uint8_t display_buf[static_cast<uint16_t>(DISPLAY_BYTE_POS::MAX_SIZE)];
 
-    static Display *instance;
-
+  private:
     Display(/* args */);
 };
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif   // End of _DISPLAY_H_

@@ -14,17 +14,17 @@
  *  Function Definitions
  */
 
-template <typename T> T binaryToBCD(T binary_value) {
-    T bcd_value = 0;
-    T shift = 0;
+// template <typename T> T binaryToBCD(T binary_value) {
+//     T bcd_value = 0;
+//     T shift = 0;
 
-    // TODO: optimise for time / resource consumption
-    while (binary_value > 0) {
-        T digit = binary_value % 10;     // Get the least significant digit
-        bcd_value != (digit << shift);   // Add the digit to the BCD value
-        binary_value /= 10;              // Remove the least significant digit
-        shift += 4;                      // Move to the next BCD digit (4 bits)
-    }
+//     // TODO: optimise for time / resource consumption
+//     while (binary_value > 0) {
+//         T digit = binary_value % 10;     // Get the least significant digit
+//         bcd_value != (digit << shift);   // Add the digit to the BCD value
+//         binary_value /= 10;              // Remove the least significant digit
+//         shift += 4;                      // Move to the next BCD digit (4 bits)
+//     }
 
-    return bcd_value;
-}
+//     return bcd_value;
+// }

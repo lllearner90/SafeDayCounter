@@ -12,15 +12,11 @@
 #ifndef _SAFE_DAYS_H_
 #define _SAFE_DAYS_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*
  *  Includes
  */
 
-// #include " .h"
+#include "calendar.h"
 
 /*
  *  Class Definition
@@ -45,12 +41,17 @@ class SafeDays {
     /// @param None
     void IncrementSafeYears(void);
 
+    /// @brief Handle the safe day/year update logic
+    /// @param None
+    void update(void);
+
   private:
     /// @brief Constant representing days in a year
     const int kDAYS_IN_A_YEAR = 365;
 
     int safe_days_count;
     int safe_year_count;
+    Calendar::date_t stored_date;
 
     /// @brief Set/override Safe day count
     /// @param days New safe day count
@@ -61,9 +62,5 @@ class SafeDays {
     /// @param years New safe year count
     void setSafeYearsCount(const int years);
 };
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif   // End of _SAFE_DAYS_H_

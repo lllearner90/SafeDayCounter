@@ -17,6 +17,7 @@ add_executable(${PROJECT_NAME}
     "App/safe_days.cpp"
     "App/Display/display.cpp"
     "App/Calendar/calendar_stm32.cpp"
+    "App/Calendar/calendar.cpp"
 
     "App/Utility/bcd.cpp"
 )

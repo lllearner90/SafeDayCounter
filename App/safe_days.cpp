@@ -11,13 +11,14 @@
  *  Includes
  */
 #include "safe_days.h"
-
+#include "calendar_stm32.h"
 #include <exception>
 
 SafeDays::SafeDays(/* args */) {
     // TODO :Read the values from persistent memory
     safe_days_count = 0;
     safe_year_count = 0;
+    stored_date     = Calendar::date_t{0};
 }
 
 SafeDays::~SafeDays() {}
@@ -52,4 +53,33 @@ void SafeDays::setSafeDaysCount(const int days) {
 void SafeDays::setSafeYearsCount(const int years) {
     safe_year_count = years;
     // TODO: store to persistent memory
+}
+
+void SafeDays::update(void) {
+    // TODO: implement
+    int num_of_days = 0;
+
+    // 1. Read the current day from RTC
+    Calendar        *calendar_instance = CalendarSTM32::getInstance();
+    Calendar::date_t current_date      = calendar_instance->getDate();
+
+    // 2. If the current day is greater then stored day,
+    // computed the days elapsed
+    if ((current_date != stored_date) && (current_date > stored_date)) {
+        num_of_days = current_date - stored_date;
+    }
+    // 3. if the stored day is less than current day & year;
+    else {
+        // TODO:
+        // prompt for reset?
+        num_of_days = 0;
+    }
+    // Increment years
+    safe_days_count += num_of_days;
+    while (safe_days_count >= kDAYS_IN_A_YEAR) {
+        IncrementSafeYears();
+        safe_days_count -= kDAYS_IN_A_YEAR;
+    }
+    // Set days
+    setSafeDaysCount(safe_days_count);
 }

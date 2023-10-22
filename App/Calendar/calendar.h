@@ -12,7 +12,7 @@
 #define _CALENDAR_H_
 
 #ifdef __cplusplus
-extern "C" {
+// extern "C" {
 #endif
 
 /*
@@ -28,7 +28,7 @@ class Calendar {
   public:
     enum class DaysOfWeek { MONDAY = 1, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY };
 
-    enum class Months {
+    enum Months {
         JANUARY = 1,
         FEBRUARY,
         MARCH,
@@ -45,7 +45,7 @@ class Calendar {
 
     struct date_t {
         uint8_t day;
-        uint8_t month;
+        Months  month;
         uint8_t year;
     };
 
@@ -59,23 +59,30 @@ class Calendar {
         date_t date;
     };
 
-
     // virtual void init() = 0;
     virtual void setTime(time_t time) = 0;
     virtual void setDate(date_t date) = 0;
-    // virtual void setYear(year_t year) = 0;
+
+    virtual time_t getTime(void) = 0;
+    virtual date_t getDate(void) = 0;
 
     static Calendar *getInstance(void);
+    friend bool      operator==(const date_t &lhs_date, const date_t &rhs_date);
+    friend bool      operator!=(const date_t &lhs_date, const date_t &rhs_date);
+    // FIXME: Create a function to compute the difference instead
+    friend int  operator-(const date_t &lhs_date, const date_t &rhs_date);
+    friend bool operator>(const date_t &lhs_date, const date_t &rhs_date);
+    friend bool operator<(const date_t &lhs_date, const date_t &rhs_date);
 
   protected:
-    static date_t date;
-    static time_t time;
-    static Calendar *instance;
-
+    date_t     date;
+    time_t     time;
+    static int getNumOfDays(const date_t &lhs_date, const date_t &rhs_date);
+    static int getLeapYearCount(const date_t &date);
 };
 
 #ifdef __cplusplus
-}
+// }
 #endif
 
 #endif   // End of _CALENDAR_H_

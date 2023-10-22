@@ -11,9 +11,6 @@
 #ifndef _CALENDAR_STM32_H_
 #define _CALENDAR_STM32_H_
 
-#ifdef __cplusplus
-//extern "C" {
-#endif
 
 /*
  *  Includes
@@ -27,19 +24,18 @@
 
 class CalendarSTM32 : public Calendar {
   public:
-
-    void init(RTC_HandleTypeDef *instance);
+    static void init(RTC_HandleTypeDef *instance);
     void setTime(time_t time) override;
     void setDate(date_t date) override;
-    // void setYear(year_t year) override;
-    static Calendar* getInstance(void);
+
+    Calendar::time_t getTime(void) override;
+    Calendar::date_t getDate(void) override;
+
+    static Calendar *getInstance(void);
+
   private:
     CalendarSTM32();
-    static RTC_HandleTypeDef *rtc_instance;
 };
 
-#ifdef __cplusplus
-//}
-#endif
 
 #endif   // End of _CALENDAR_STM32_H_

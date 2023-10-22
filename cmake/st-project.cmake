@@ -99,9 +99,9 @@ target_link_options(
 
 target_sources(
     ${TARGET_NAME} PRIVATE
+    "App/safe_days.cpp"
     "App/Calendar/calendar_stm32.cpp"
     "App/Display/display.cpp"
-    "App/safe_days.cpp"
     "App/Utility/bcd.cpp"
     "Core/Src/app_freertos.c"
     "Core/Src/main.cpp"

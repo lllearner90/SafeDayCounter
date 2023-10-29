@@ -12,6 +12,8 @@ include_directories(
     "${PROJECT_SOURCE_DIR}/App/Calendar"
 
     "${PROJECT_SOURCE_DIR}/App/Utility"
+
+    "${PROJECT_SOURCE_DIR}/App/Config"
 )
 
 add_executable(${PROJECT_NAME}
@@ -22,6 +24,8 @@ add_executable(${PROJECT_NAME}
     "App/Calendar/calendar.cpp"
 
     "App/Utility/bcd.cpp"
+
+    "App/Config/config_manager.cpp"
 )
 
 add_st_target_properties(${PROJECT_NAME})

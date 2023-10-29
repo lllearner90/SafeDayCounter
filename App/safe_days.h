@@ -6,9 +6,6 @@
  *      The interface to store/restore/update the safe days/year mechanism.
  ******************************************************************************/
 
-/*
- *  Includes
- */
 #ifndef _SAFE_DAYS_H_
 #define _SAFE_DAYS_H_
 

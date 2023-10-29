@@ -9,11 +9,14 @@
  *  Includes
  */
 #include "display.h"
+#include "TLC591x.h"
 #include "bcd.h"
 #include "cmsis_os.h"
 #include "stm32g0xx_hal.h"
 
 #include <cstring>
+
+TLC591x *disp_driver;
 
 Display::Display(/* args */) {}
 
@@ -23,6 +26,7 @@ Display *Display::getInstance(void) {
     //     instance = new Display();
     // }
     static Display instance;
+    disp_driver = new TLC591x(4);
     return &instance;
 }
 
@@ -57,25 +61,21 @@ void Display::update(void) {
     // TODO: Force update the driver
     // periodically called to push the data from SW buffer to HW implementation
     // of Display
-    extern SPI_HandleTypeDef hspi1;
 
     // Since the Time display is absent,
     // sent the data for Safe days and Safe Year
-    HAL_SPI_Transmit(&hspi1, &display_buf[DAY_COUNT], (MAX_SIZE - DAY_COUNT),
-                     (-1));   // Max timeout set
-
-    //
+    disp_driver->printDirect(&display_buf[DAY_COUNT]);
 }
 
 void Display::selfTest(void) {
     // FIXME: Representing " " is problematic for BCD!
-    std::memset(display_buf, ' ', sizeof(display_buf));
-    update();
+    uint8_t s[5] = {"    "};
+    disp_driver->printDirect(s);
     // TODO: Update ticks count to represent 1s
     osDelay(1);
 
-    std::memset(display_buf, 0x88, sizeof(display_buf));
-    update();
+    uint8_t st[5] = "8888";
+    disp_driver->printDirect(st);
     // TODO: Update ticks count to represent 1s
     osDelay(1);
 }

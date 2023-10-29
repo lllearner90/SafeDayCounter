@@ -516,7 +516,6 @@ void StartDisplayTask(void *argument) {
             break;
 
         case DisplayStateMachine::APP:
-            safe_days_instance->update();
             // Update the display buffers
             display_instance->setSafeDayCount(
                 safe_days_instance->getSafeDaysCount());

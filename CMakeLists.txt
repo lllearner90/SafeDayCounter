@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.20)
 
 project("Software" C CXX ASM)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 include(cmake/st-project.cmake)
 
 include_directories(
@@ -29,3 +33,4 @@ add_executable(${PROJECT_NAME}
 )
 
 add_st_target_properties(${PROJECT_NAME})
+

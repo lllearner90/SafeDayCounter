@@ -17,14 +17,15 @@
 
 #include "stdint.h"
 
+#include "TLC591x.h"
 #include "calendar.h"
-
 /*
  *  Class Definition
  */
 
 class Display {
   public:
+    enum class DISPLAY_SM_STATES { SELF_TEST, APP_MODE, CONFIG_MODE };
     static Display *getInstance(void);
 
     void setTime(Calendar::time_t time);
@@ -40,6 +41,10 @@ class Display {
 
     void selfTest(void);
 
+    DISPLAY_SM_STATES getDisplayState(void);
+
+    void setDisplayState(DISPLAY_SM_STATES state);
+
   protected:
     // Data is stored in BCD
     enum DISPLAY_BYTE_POS {
@@ -53,6 +58,9 @@ class Display {
 
   private:
     Display(/* args */);
+    DISPLAY_SM_STATES display_state;
+    TLC591x          *disp_driver;
+    // Display          *instance;
 };
 
 #endif   // End of _DISPLAY_H_

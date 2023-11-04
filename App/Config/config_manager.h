@@ -20,7 +20,14 @@
 
 class ConfigManager {
   private:
-    void processData(uint8_t data);
+    enum class CONFIG_STATES { AUTHENTICATE, CONFIGURE, SAVE };
+    CONFIG_STATES config_state;
+    uint8_t      *key;
+
+    void processData(const uint8_t data);
+    void processAuthState(const uint8_t data);
+    void processConfigState(const uint8_t data);
+    void processSaveState(void);
 
   public:
     ConfigManager(/* args */);

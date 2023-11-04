@@ -9,25 +9,33 @@
  *  Includes
  */
 #include "display.h"
-#include "TLC591x.h"
 #include "bcd.h"
 #include "cmsis_os.h"
 #include "stm32g0xx_hal.h"
 
 #include <cstring>
 
-TLC591x *disp_driver;
+// Ideally, the information should be hidden in the display driver
+// Implementation should be of form
+// Display_App -> Display_driver -> HW(TLC591x)
+const uint8_t NUMBER_OF_7_SEG_DISPLAYS = 4;
 
-Display::Display(/* args */) {}
+static Display *instance = nullptr;
+
+Display::Display(/* args */) : disp_driver(nullptr) {}
 
 Display *Display::getInstance(void) {
     // If not instance is created yet, create an instance of Display
-    // if (instance == nullptr) {
-    //     instance = new Display();
-    // }
-    static Display instance;
-    disp_driver = new TLC591x(4);
-    return &instance;
+    if (nullptr == instance) {
+        instance = new Display();
+    }
+
+    if (nullptr == instance->disp_driver) {
+        instance->disp_driver = new TLC591x(NUMBER_OF_7_SEG_DISPLAYS);
+    }
+
+    instance->display_state = Display::DISPLAY_SM_STATES::SELF_TEST;
+    return instance;
 }
 
 void Display::setTime(Calendar::time_t time) {
@@ -78,4 +86,12 @@ void Display::selfTest(void) {
     disp_driver->printDirect(st);
     // TODO: Update ticks count to represent 1s
     osDelay(1);
+}
+
+Display::DISPLAY_SM_STATES Display::getDisplayState(void) {
+    return this->display_state;
+}
+
+void Display::setDisplayState(DISPLAY_SM_STATES state) {
+    display_state = state;
 }

@@ -501,26 +501,29 @@ void StartDisplayTask(void *argument) {
     /* USER CODE BEGIN StartDisplayTask */
     SafeDays *safe_days_instance = new SafeDays();
     Display  *display_instance   = Display::getInstance();
-    enum class DisplayStateMachine {
-        SELF_TEST,
-        APP
-    } display_state = DisplayStateMachine::SELF_TEST;
+
     /* Infinite loop */
     for (;;) {
         // TODO: Update ticks count to represent 50 ms
         osDelay(1);
-        switch (display_state) {
-        case DisplayStateMachine::SELF_TEST:
+        switch (display_instance->getDisplayState()) {
+        case Display::DISPLAY_SM_STATES::SELF_TEST:
             display_instance->selfTest();
-            display_state = DisplayStateMachine::APP;
+            display_instance->setDisplayState(
+                Display::DISPLAY_SM_STATES::APP_MODE);
             break;
 
-        case DisplayStateMachine::APP:
+        case Display::DISPLAY_SM_STATES::APP_MODE:
             // Update the display buffers
             display_instance->setSafeDayCount(
                 safe_days_instance->getSafeDaysCount());
             display_instance->setSafeYearCount(
                 safe_days_instance->getSafeYearsCount());
+            break;
+
+        case Display::DISPLAY_SM_STATES::CONFIG_MODE:
+            // Sit idle, data loaded from config manager to display buffer
+            // Loop is needed just to call the update() periodically!
             break;
 
         default:

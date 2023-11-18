@@ -38,3 +38,5 @@ AlignOperands: Align
 BracedInitializerIndentWidth: 2
 
 BreakBeforeBinaryOperators: NonAssignment
+
+AllowShortEnumsOnASingleLine: false

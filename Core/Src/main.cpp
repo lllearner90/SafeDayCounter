@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "bcd.h"
 #include "calendar_stm32.h"
+#include "config_manager.h"
 #include "display.h"
 #include "safe_days.h"
 /* USER CODE END Includes */
@@ -483,9 +484,12 @@ static void MX_GPIO_Init(void) {
 /* USER CODE END Header_StartIdleTask */
 void StartIdleTask(void *argument) {
     /* USER CODE BEGIN 5 */
+    ConfigManager *config = ConfigManager::getInstance();
     /* Infinite loop */
     for (;;) {
+        // TODO: Schedule frequency
         osDelay(1);
+        config->run();
     }
     /* USER CODE END 5 */
 }

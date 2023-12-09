@@ -6,6 +6,8 @@
 .metadata
 .editorconfig
 
+githubConnect
+
 build/*
 Debug/*
 Release/*

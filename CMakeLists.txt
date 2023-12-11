@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(cmake/st-project.cmake)
+include(cmake/logger.cmake)
 
 include_directories(
     ${TARGET_NAME} PRIVATE
@@ -33,4 +34,5 @@ add_executable(${PROJECT_NAME}
 )
 
 add_st_target_properties(${PROJECT_NAME})
+add_logger_target_properties(${PROJECT_NAME})
 

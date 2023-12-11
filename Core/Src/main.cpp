@@ -26,12 +26,13 @@
 #include "calendar_stm32.h"
 #include "config_manager.h"
 #include "display.h"
+#include "elog.h"
 #include "safe_days.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+typedef StaticTask_t osStaticThreadDef_t;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -68,7 +69,27 @@ const osThreadAttr_t DisplayTask_attributes = {
   .priority   = (osPriority_t) osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
-
+/* Definitions for elog */
+osThreadId_t         elogHandle;
+uint32_t             elogBuffer[512];
+osStaticThreadDef_t  elogControlBlock;
+const osThreadAttr_t elog_attributes = {
+  .name       = "elog",
+  .cb_mem     = &elogControlBlock,
+  .cb_size    = sizeof(elogControlBlock),
+  .stack_mem  = &elogBuffer[0],
+  .stack_size = sizeof(elogBuffer),
+  .priority   = (osPriority_t) osPriorityLow,
+};
+/* Definitions for elog_lock */
+osSemaphoreId_t         elog_lockHandle;
+const osSemaphoreAttr_t elog_lock_attributes = {.name = "elog_lock"};
+/* Definitions for elog_async */
+osSemaphoreId_t         elog_asyncHandle;
+const osSemaphoreAttr_t elog_async_attributes = {.name = "elog_async"};
+/* Definitions for elog_dma_lock */
+osSemaphoreId_t         elog_dma_lockHandle;
+const osSemaphoreAttr_t elog_dma_lock_attributes = {.name = "elog_dma_lock"};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -88,7 +109,12 @@ void        StartDisplayTask(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart->Instance == huart2.Instance) {
+        extern osSemaphoreId_t elog_dma_lockHandle;
+        osSemaphoreRelease(elog_dma_lockHandle);
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -127,7 +153,18 @@ int main(void) {
     MX_RTC_Init();
     /* USER CODE BEGIN 2 */
     CalendarSTM32::init(&hrtc);
+    elog_init();
 
+    elog_set_fmt(ELOG_LVL_ASSERT, ELOG_FMT_ALL & ~ELOG_FMT_P_INFO);
+    elog_set_fmt(ELOG_LVL_ERROR, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_WARN, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_INFO, ELOG_FMT_LVL | ELOG_FMT_TAG | ELOG_FMT_TIME);
+    elog_set_fmt(ELOG_LVL_DEBUG,
+                 ELOG_FMT_ALL & ~(ELOG_FMT_FUNC | ELOG_FMT_P_INFO));
+    elog_set_fmt(ELOG_LVL_VERBOSE,
+                 ELOG_FMT_ALL & ~(ELOG_FMT_FUNC | ELOG_FMT_P_INFO));
+
+    elog_start();
     /* USER CODE END 2 */
 
     /* Init scheduler */
@@ -139,6 +176,14 @@ int main(void) {
 
     /* USER CODE BEGIN RTOS_SEMAPHORES */
     /* add semaphores, ... */
+    /* creation of elog_lock */
+    elog_lockHandle = osSemaphoreNew(1, 1, &elog_lock_attributes);
+
+    /* creation of elog_async */
+    elog_asyncHandle = osSemaphoreNew(1, 1, &elog_async_attributes);
+
+    /* creation of elog_dma_lock */
+    elog_dma_lockHandle = osSemaphoreNew(1, 1, &elog_dma_lock_attributes);
     /* USER CODE END RTOS_SEMAPHORES */
 
     /* USER CODE BEGIN RTOS_TIMERS */

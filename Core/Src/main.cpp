@@ -546,6 +546,7 @@ static void MX_GPIO_Init(void) {
 /* USER CODE END Header_StartIdleTask */
 void StartIdleTask(void *argument) {
     /* USER CODE BEGIN 5 */
+    elog_info("Task", "IDLE started");
     ConfigManager *config = ConfigManager::getInstance();
     /* Infinite loop */
     for (;;) {
@@ -565,6 +566,7 @@ void StartIdleTask(void *argument) {
 /* USER CODE END Header_StartDisplayTask */
 void StartDisplayTask(void *argument) {
     /* USER CODE BEGIN StartDisplayTask */
+    elog_i("Task", "Display started");
     SafeDays *safe_days_instance = new SafeDays();
     Display  *display_instance   = Display::getInstance();
 

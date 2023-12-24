@@ -11,9 +11,12 @@
 #include "display.h"
 #include "bcd.h"
 #include "cmsis_os.h"
+#include "elog.h"
 #include "stm32g0xx_hal.h"
 
 #include <cstring>
+
+static const char *logger_tag = "Display";
 
 // Ideally, the information should be hidden in the display driver
 // Implementation should be of form
@@ -51,7 +54,8 @@ void Display::setSafeDayCount(int safe_days) {
         std::memcpy(&display_buf[Display::DISPLAY_BYTE_POS::DAY_COUNT],
                     &safe_days_bcd, sizeof(safe_days_bcd));
     } else {
-        // TODO: throw an exception
+        // throw an exception
+        elog_a(logger_tag, "Expected safe_day >= 0, received %d", safe_days);
     }
 }
 
@@ -61,7 +65,8 @@ void Display::setSafeYearCount(int safe_years) {
         std::memcpy(&display_buf[Display::DISPLAY_BYTE_POS::YEAR_COUNT],
                     &safe_year_bcd, sizeof(safe_year_bcd));
     } else {
-        // TODO: throw an exception
+        // throw an exception
+        elog_a(logger_tag, "Expected safe_years >= 0, received %d", safe_years);
     }
 }
 

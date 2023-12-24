@@ -14,14 +14,16 @@
 
 #include "config_manager.h"
 #include "display.h"
+#include "elog.h"
 
 #include "stm32g0xx_hal.h"
 
 extern IRDA_HandleTypeDef hirda1;
 
-static const std::string secret_key = "1234";
+static const std::string secret_key       = "1234";
 static ConfigManager    *instance         = nullptr;
 static Display          *display_instance = nullptr;
+static const char       *logger_tag       = "ConfigM";
 
 ConfigManager *ConfigManager::getInstance(void) {
     // If no instance is created yet, create an instance of config manager
@@ -54,7 +56,8 @@ void ConfigManager::run(void) {
     } else if ((HAL_ERROR == status) || (HAL_BUSY == status)) {
         // TODO: Log to debug console
         // TODO: Display Err code for User?
-
+        elog_e(logger_tag, "Data Error code: %d when in CONFIG_STATE=%d",
+               status, config_state);
         // reset parameters
         auth_input_cnt = 0;
         config_state   = CONFIG_STATES::AUTHENTICATE;
@@ -92,6 +95,7 @@ void ConfigManager::processAuthState(const uint8_t &data) {
     if (auth_input_cnt >= secret_key.length()) {
         if (std::memcmp(key, secret_key.c_str(), secret_key.length())) {
             config_state = CONFIG_STATES::CONFIGURE;
+            elog_i(logger_tag, "AUTH success!");
         }
         auth_input_cnt = 0;
     }
@@ -141,8 +145,8 @@ void ConfigManager::configureModeSelect(const uint8_t &data) {
         break;
 
     default:
-        // TODO: Throw an error
         // log on console
+        elog_a(logger_tag, "Invalid mode(%c) encountered ", data);
         break;
     }
 }

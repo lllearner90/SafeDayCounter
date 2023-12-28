@@ -34,7 +34,8 @@ Display *Display::getInstance(void) {
     }
 
     if (nullptr == instance->disp_driver) {
-        instance->disp_driver = new TLC591x(NUMBER_OF_7_SEG_DISPLAYS);
+        instance->disp_driver = new TLC591x(NUMBER_OF_7_SEG_DISPLAYS,
+                                            TLC591x::INTERFACE_TYPE::SW_SPI);
     }
 
     instance->display_state = Display::DISPLAY_SM_STATES::SELF_TEST;
@@ -82,15 +83,12 @@ void Display::update(void) {
 
 void Display::selfTest(void) {
     // FIXME: Representing " " is problematic for BCD!
-    uint8_t s[5] = {"    "};
-    disp_driver->printDirect(s);
-    // TODO: Update ticks count to represent 1s
-    osDelay(portTICK_PERIOD_MS * 1000);
-
-    uint8_t st[5] = "8888";
-    disp_driver->printDirect(st);
-    // TODO: Update ticks count to represent 1s
-    osDelay(portTICK_PERIOD_MS * 1000);
+    for (auto num = 0; num < 10; num++) {
+        for (auto i = 0; i < NUMBER_OF_7_SEG_DISPLAYS; i++) {
+            disp_driver->sendValue(disp_driver->convertNumberToPattern(num));
+        }
+        disp_driver->toggleLE();
+    }
 }
 
 Display::DISPLAY_SM_STATES Display::getDisplayState(void) {

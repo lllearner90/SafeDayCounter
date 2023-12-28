@@ -28,9 +28,13 @@
 class TLC591x {
   public:
     enum { NO_PIN = 255 };
+    enum INTERFACE_TYPE {
+        SW_SPI,
+        HW_SPI
+    };
 
     // Hardware SPI interface
-    TLC591x(uint8_t n);
+    TLC591x(uint8_t n, INTERFACE_TYPE interface_type);
 
     void print(const char *s);
     void print(unsigned int n);
@@ -41,20 +45,28 @@ class TLC591x {
     void specialMode();
     void displayBrightness(uint8_t b);
 
-  private:
+    // private:
     enum PIN_STATE { LOW = 0, HIGH = 1 };
     enum PIN_TYPE { INPUT, OUTPUT };
-    enum class TLC591x_PINS { OE, LE, CLK };
+    enum class TLC591x_PINS {
+        OE,
+        LE,
+        CLK,
+        SDI
+    };
     enum POWER_MODE { WAKEUP = 1, SHUTDOWN = 0 };
-    enum { MINCHIPS = 1, MAXCHIPS = 254 };
-    enum { SW_SPI, HW_SPI };
+    enum {
+        MINCHIPS = 1,
+        MAXCHIPS = 254
+    };
     enum EN_DIS { TLC_ENABLED = 0, TLC_DISABLED = 255 };
     EN_DIS enableState;
     EN_DIS pwmMode;   // Used to keep track of whether the displayBrightness()
                       // method was used
     uint8_t brightness;
-    uint8_t spiType;
     uint8_t numchips;
+
+    INTERFACE_TYPE interface_type;
 
     void write(uint8_t n);
     void toggleLE();
@@ -62,6 +74,10 @@ class TLC591x {
     void init();
     void digitalWrite(TLC591x_PINS pin, uint8_t state);
     void pinMode(TLC591x_PINS pin, PIN_TYPE pin_type);
+    void analogWrite(uint8_t duty_cycle);
+    void sendValue(unsigned char pattern);
+
+    unsigned char convertNumberToPattern(unsigned char number);
 };
 
 // Conversion of letters to LED segments.

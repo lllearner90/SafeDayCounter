@@ -224,7 +224,6 @@ target_link_options(
 
 set(
     RELEASE_SOURCES
-    "App/Logger/repo/demo/os/cube-freertos/nucleo-g070rb/Core/Startup/startup_stm32g070rbtx.s"
     "App/Logger/repo/demo/non_os/stm32f10x/app/src/app.c"
     "App/Logger/repo/demo/non_os/stm32f10x/app/src/stm32f10x_it.c"
     "App/Logger/repo/demo/non_os/stm32f10x/components/easylogger/port/elog_port.c"
@@ -283,6 +282,7 @@ set(
     "App/Logger/repo/demo/os/cube-freertos/nucleo-g070rb/Core/Src/sysmem.c"
     "App/Logger/repo/demo/os/cube-freertos/nucleo-g070rb/Core/Src/system_stm32g0xx.c"
     "App/Logger/repo/demo/os/cube-freertos/nucleo-g070rb/Core/Src/usart.c"
+    "App/Logger/repo/demo/os/cube-freertos/nucleo-g070rb/Core/Startup/startup_stm32g070rbtx.s"
     "App/Logger/repo/demo/os/cube-freertos/nucleo-g070rb/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_cortex.c"
     "App/Logger/repo/demo/os/cube-freertos/nucleo-g070rb/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma_ex.c"
     "App/Logger/repo/demo/os/cube-freertos/nucleo-g070rb/Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma.c"

@@ -357,17 +357,17 @@ static void MX_SPI1_Init(void) {
     hspi1.Instance               = SPI1;
     hspi1.Init.Mode              = SPI_MODE_MASTER;
     hspi1.Init.Direction         = SPI_DIRECTION_2LINES;
-    hspi1.Init.DataSize          = SPI_DATASIZE_4BIT;
+    hspi1.Init.DataSize          = SPI_DATASIZE_8BIT;
     hspi1.Init.CLKPolarity       = SPI_POLARITY_LOW;
     hspi1.Init.CLKPhase          = SPI_PHASE_1EDGE;
-    hspi1.Init.NSS               = SPI_NSS_HARD_OUTPUT;
-    hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+    hspi1.Init.NSS               = SPI_NSS_SOFT;
+    hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
     hspi1.Init.FirstBit          = SPI_FIRSTBIT_MSB;
     hspi1.Init.TIMode            = SPI_TIMODE_DISABLE;
     hspi1.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
     hspi1.Init.CRCPolynomial     = 7;
     hspi1.Init.CRCLength         = SPI_CRC_LENGTH_DATASIZE;
-    hspi1.Init.NSSPMode          = SPI_NSS_PULSE_ENABLE;
+    hspi1.Init.NSSPMode          = SPI_NSS_PULSE_DISABLE;
     if (HAL_SPI_Init(&hspi1) != HAL_OK) {
         Error_Handler();
     }
@@ -512,9 +512,9 @@ static void MX_GPIO_Init(void) {
                              PB15 PB6 PB7 PB8
                              PB9 */
     GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_10
-                          | GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13
-                          | GPIO_PIN_14 | GPIO_PIN_15 | GPIO_PIN_6 | GPIO_PIN_7
-                          | GPIO_PIN_8 | GPIO_PIN_9;
+                          | GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_14
+                          | GPIO_PIN_15 | GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8
+                          | GPIO_PIN_9;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);

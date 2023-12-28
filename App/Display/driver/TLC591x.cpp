@@ -17,16 +17,19 @@
 */
 
 #include "TLC591x.h"
+#include "cmsis_os.h"
 #include "stm32g0xx_hal.h"
 
 extern SPI_HandleTypeDef hspi1;
 
+#define SDI_PORT GPIOB
+#define SDI_PIN  GPIO_PIN_4
+
 #define OE_PORT  GPIOA
 #define OE_PIN   GPIO_PIN_15
 
-// FIXME: Map Pin assignment
-#define LE_PORT  GPIOA
-#define LE_PIN   GPIO_PIN_1
+#define LE_PORT  GPIOB
+#define LE_PIN   GPIO_PIN_13
 
 #define CLK_PORT GPIOB
 #define CLK_PIN  GPIO_PIN_3
@@ -36,12 +39,17 @@ void TLC591x::digitalWrite(TLC591x::TLC591x_PINS pin, uint8_t state) {
     case TLC591x::TLC591x_PINS::OE:
         HAL_GPIO_WritePin(OE_PORT, OE_PIN, (GPIO_PinState) state);
         break;
+
     case TLC591x::TLC591x_PINS::LE:
         HAL_GPIO_WritePin(LE_PORT, LE_PIN, (GPIO_PinState) state);
         break;
 
     case TLC591x_PINS::CLK:
         HAL_GPIO_WritePin(CLK_PORT, CLK_PIN, (GPIO_PinState) state);
+        break;
+
+    case TLC591x_PINS::SDI:
+        HAL_GPIO_WritePin(SDI_PORT, SDI_PIN, (GPIO_PinState) state);
         break;
     }
 }
@@ -65,9 +73,15 @@ void TLC591x::pinMode(TLC591x_PINS pin, PIN_TYPE pin_type) {
         sel_pin  = CLK_PIN;
         sel_gpio = CLK_PORT;
         break;
+
+    case TLC591x_PINS::SDI:
+        sel_pin  = SDI_PIN;
+        sel_gpio = SDI_PORT;
+        break;
     }
     if ((sel_pin) && (sel_gpio)) {
         GPIO_InitStruct.Pin  = sel_pin;
+        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
         GPIO_InitStruct.Mode = (pin_type == PIN_TYPE::INPUT)
                                    ? GPIO_MODE_INPUT
                                    : GPIO_MODE_OUTPUT_PP;
@@ -77,15 +91,18 @@ void TLC591x::pinMode(TLC591x_PINS pin, PIN_TYPE pin_type) {
 }
 
 // Hardware SPI constructors
-TLC591x::TLC591x(uint8_t n) {
+// @note: HW_SPI will not work due to MOSI/MISO mismatch in TLC591x interface
+TLC591x::TLC591x(uint8_t        n,
+                 INTERFACE_TYPE interface_type = INTERFACE_TYPE::SW_SPI)
+    : interface_type{interface_type} {
+
     numchips = n;
+    pinMode(TLC591x_PINS::OE, OUTPUT);
     digitalWrite(TLC591x::TLC591x_PINS::OE,
                  TLC591x::PIN_STATE::HIGH);   // Default is disabled
     enableState = TLC_DISABLED;
-    pwmMode = TLC_DISABLED;   // Used to indicate if the the displayBrightness()
-                              // method was used
-    // pinMode(OE_pin, OUTPUT);
-    spiType = HW_SPI;
+    pwmMode     = TLC_DISABLED;   // Used to indicate if the the
+                                  // displayBrightness() method was used
     init();
 }
 
@@ -96,8 +113,26 @@ void TLC591x::init() {
         numchips = MAXCHIPS;
 
     // TODO: COnfigure OE & LE as output
+    if (interface_type == SW_SPI) {
+        pinMode(TLC591x_PINS::SDI, OUTPUT);
+        pinMode(TLC591x_PINS::CLK, OUTPUT);
+    }
 
+    pinMode(TLC591x_PINS::LE, OUTPUT);
     digitalWrite(TLC591x::TLC591x_PINS::LE, TLC591x::PIN_STATE::LOW);
+
+    // Enable the display
+    specialMode();
+
+    // set display contrast to high
+    for (auto i = 0; i < numchips; i++) {
+        write(255);
+    }
+    toggleLE();
+
+    normalMode();
+
+    digitalWrite(TLC591x::TLC591x_PINS::OE, TLC591x::PIN_STATE::LOW);
 }
 
 void TLC591x::print(const char *s) {
@@ -116,7 +151,8 @@ void TLC591x::print(const char *s) {
         else
             pos = s[i] - 32;
         c = ICM7218_segment_map[pos];
-        write(c);
+        // write(c);
+        sendValue(c);
     }
     toggleLE();
 }
@@ -128,8 +164,9 @@ void TLC591x::print(unsigned int n) {
     else
         size = numchips;
     for (uint8_t i = 0; i < size; i++) {
-        write(n);
-        n = n / 256;   // Get the next most significant uint8_t
+        // write(n);
+        sendValue(convertNumberToPattern(n % 10));
+        n = n / 10;   // Get the next most significant uint8_t
     }
     toggleLE();
 }
@@ -159,13 +196,16 @@ void TLC591x::displayDisable() {
 
 void TLC591x::normalMode() {
     // if (OE_pin != NO_PIN) {
-    if (spiType == HW_SPI) {
+    if (interface_type == HW_SPI) {
         // SPI.end();
         // End spi transmission
         // Change CLK pin mode
+        if (HAL_SPI_DeInit(&hspi1) != HAL_OK) {
+            // TODO: Throw/log error and exit!
+        }
 
-        digitalWrite(TLC591x_PINS::CLK, PIN_STATE::LOW);
         pinMode(TLC591x_PINS::CLK, PIN_TYPE::OUTPUT);
+        digitalWrite(TLC591x_PINS::CLK, PIN_STATE::LOW);
     }
     pwmMode = TLC_DISABLED;
     digitalWrite(TLC591x_PINS::OE, PIN_STATE::HIGH);
@@ -178,20 +218,26 @@ void TLC591x::normalMode() {
     toggleCLK();   // Now in normal mode
     if (enableState == TLC_ENABLED)
         displayEnable();   // Re-enable display if it was enabled previously
-    if (spiType == HW_SPI) {
+    if (interface_type == HW_SPI) {
         // TODO: Check is a spi re-init is needed?
         // SPI.begin();
+        if (HAL_SPI_Init(&hspi1) != HAL_OK) {
+            // TODO: Throw/log error and exit!
+        }
     }
     // }
 }
 
 void TLC591x::specialMode() {
     // if (OE_pin != NO_PIN) {
-    if (spiType == HW_SPI) {
+    if (interface_type == HW_SPI) {
         // TODO: Check is SPI deinit needed?
         // SPI.end();
-        digitalWrite(TLC591x_PINS::CLK, PIN_STATE::LOW);
+        if (HAL_SPI_DeInit(&hspi1) != HAL_OK) {
+            // TODO: Throw/log error and exit!
+        }
         pinMode(TLC591x_PINS::CLK, PIN_TYPE::OUTPUT);
+        digitalWrite(TLC591x_PINS::CLK, PIN_STATE::LOW);
     }
     pwmMode = TLC_DISABLED;
     digitalWrite(TLC591x_PINS::OE, PIN_STATE::HIGH);
@@ -207,9 +253,12 @@ void TLC591x::specialMode() {
     // Switching to special mode disables the display
     // normalMode() automatically re-enables display if it was previously
     // enabled before specialMode()
-    if (spiType == HW_SPI) {
+    if (interface_type == HW_SPI) {
         // TODO: Check if re-init needed
         // SPI.begin();
+        if (HAL_SPI_Init(&hspi1) != HAL_OK) {
+            // TODO: Throw/log error and exit!
+        }
     }
     // }
 }
@@ -217,7 +266,7 @@ void TLC591x::specialMode() {
 void TLC591x::displayBrightness(uint8_t b) {
     // if (OE_pin != NO_PIN) {
     // FIXME: Refer datasheet!!!
-    // analogWrite(OE_pin, b);
+    analogWrite(b);
     pwmMode     = TLC_ENABLED;
     enableState = TLC_ENABLED;
     brightness  = b;
@@ -226,48 +275,43 @@ void TLC591x::displayBrightness(uint8_t b) {
 
 void TLC591x::write(uint8_t n) {
 
-    // Since the Time display is absent,
-    // sent the data for Safe days and Safe Year
-    HAL_SPI_Transmit(&hspi1, &n, sizeof(n), (-1));   // Max timeout set
-    toggleLE();
+    if (pwmMode == TLC_ENABLED) {
+        digitalWrite(TLC591x_PINS::OE, TLC_ENABLED);
+    }
 
-    // if (/*OE_pin != NO_PIN && */ pwmMode == TLC_ENABLED)
-    //     digitalWrite(TLC591x::TLC591x_PINS::OE, TLC_ENABLED);
-    // Need a continuous level on OE when writing
-    // if (spiType == SW_SPI) {
-    //     digitalWrite(SDI_pin, n & 0x01);
-    //     toggleCLK();
-    //     digitalWrite(SDI_pin, n & 0x02);
-    //     toggleCLK();
-    //     digitalWrite(SDI_pin, n & 0x04);
-    //     toggleCLK();
-    //     digitalWrite(SDI_pin, n & 0x08);
-    //     toggleCLK();
-    //     digitalWrite(SDI_pin, n & 0x10);
-    //     toggleCLK();
-    //     digitalWrite(SDI_pin, n & 0x20);
-    //     toggleCLK();
-    //     digitalWrite(SDI_pin, n & 0x40);
-    //     toggleCLK();
-    //     digitalWrite(SDI_pin, n & 0x80);
-    //     toggleCLK();
-    // }
-    // #if !defined(ENERGIA_ARCH_MSP432R) && !defined(ENERGIA_ARCH_MSP432E)
-    // else {
-    //     SPI.beginTransaction(SPISettings(10000000, LSBFIRST, SPI_MODE0));
-    //     SPI.transfer(n);
-    //     toggleLE();
-    //     SPI.endTransaction();
-    // }
-    // #endif
-    // if (/*OE_pin != NO_PIN && */ pwmMode == TLC_ENABLED)
-    //     displayBrightness(brightness);   // Switch back to previous setting
+    if (interface_type == HW_SPI) {
+        // Since the Time display is absent,
+        // sent the data for Safe days and Safe Year
+        HAL_SPI_Transmit(&hspi1, &n, sizeof(n), (-1));   // Max timeout set
+        toggleLE();
+    } else {
+        digitalWrite(TLC591x_PINS::SDI, (n >> 0) & 1);
+
+        digitalWrite(TLC591x_PINS::SDI, (n >> 1) & 1);
+        toggleCLK();
+        digitalWrite(TLC591x_PINS::SDI, (n >> 2) & 1);
+        toggleCLK();
+        digitalWrite(TLC591x_PINS::SDI, (n >> 3) & 1);
+        toggleCLK();
+        digitalWrite(TLC591x_PINS::SDI, (n >> 4) & 1);
+        toggleCLK();
+        digitalWrite(TLC591x_PINS::SDI, (n >> 5) & 1);
+        toggleCLK();
+        digitalWrite(TLC591x_PINS::SDI, (n >> 6) & 1);
+        toggleCLK();   // HC
+        digitalWrite(TLC591x_PINS::SDI, 1);
+        toggleCLK();   // always 1
+    }
+
+    if (/*OE_pin != NO_PIN && */ pwmMode == TLC_ENABLED)
+        displayBrightness(brightness);   // Switch back to previous setting
 }
 
 void TLC591x::toggleLE() {
     // TLC5916 minimum LE pulse time is 20 ns, so don't need to worry about
     // putting in a hard-coded delay.
     digitalWrite(TLC591x::TLC591x_PINS::LE, PIN_STATE::HIGH);
+    osDelay(portTICK_PERIOD_MS * 50);
     digitalWrite(TLC591x::TLC591x_PINS::LE, PIN_STATE::LOW);
 }
 
@@ -275,5 +319,74 @@ void TLC591x::toggleCLK() {
     // TLC5916 minimum CLK pulse time is 20 ns, so don't need to worry about
     // putting in a hard-coded delay.
     digitalWrite(TLC591x_PINS::CLK, PIN_STATE::HIGH);
+    osDelay(portTICK_PERIOD_MS * 50);
     digitalWrite(TLC591x_PINS::CLK, PIN_STATE::LOW);
+}
+
+void TLC591x::analogWrite(uint8_t duty) {
+    for (auto i = 0; i < duty; i++) {
+        // digitalWrite(TLC591x_PINS::OE, )
+    }
+}
+
+unsigned char TLC591x::convertNumberToPattern(unsigned char number) {
+
+    // what is the number?
+    switch (number) {
+
+    // numbers       abcdefg.
+    case 0:
+        return 0b11111100;
+    case 1:
+        return 0b01100000;
+    case 2:
+        return 0b11011010;
+    case 3:
+        return 0b11110010;
+    case 4:
+        return 0b01100110;
+    case 5:
+        return 0b10110110;
+    case 6:
+        return 0b10111110;
+    case 7:
+        return 0b11100000;
+    case 8:
+        return 0b11111110;
+    case 9:
+        return 0b11110110;
+
+    // default symbol is an empty space
+    default:
+        return 0b00000000;
+    }
+}
+
+void TLC591x::sendValue(unsigned char seg_pattern) {
+
+    // store decoded segment pattern here
+    unsigned char bit_pattern = 0;
+    // how are your segments connected to the TLC5916 driver?
+    // key:                       a  b  c  d  e  f  g  .
+    unsigned char seg_to_bit[] = {1, 2, 3, 4,
+                                  5, 6, 7, 8};   //{6, 5, 3, 2, 1, 7, 8, 4};
+    // decode segment pattern into bit pattern
+    for (int n = 0; n < 8; n++) {
+        if ((seg_pattern >> (7 - n)) & 1) {
+            bit_pattern |= 1 << (seg_to_bit[n] - 1);
+        }
+    }
+
+    // send bit pattern bit by bit,
+    // starting with the most significant bit
+    for (int n = 7; n >= 0; n--) {
+
+        digitalWrite(TLC591x_PINS::SDI, (bit_pattern >> n) & 1);
+        toggleCLK();
+    }
+
+    // set data pin back to zero
+    digitalWrite(TLC591x_PINS::SDI, 0);
+
+    //	toggleLE();
 }

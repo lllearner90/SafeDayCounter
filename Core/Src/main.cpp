@@ -551,7 +551,7 @@ void StartIdleTask(void *argument) {
     /* Infinite loop */
     for (;;) {
         // TODO: Schedule frequency
-        osDelay(1);
+        osDelay(portTICK_PERIOD_MS * 500);
         config->run();
     }
     /* USER CODE END 5 */
@@ -573,7 +573,7 @@ void StartDisplayTask(void *argument) {
     /* Infinite loop */
     for (;;) {
         // TODO: Update ticks count to represent 50 ms
-        osDelay(1);
+        osDelay(portTICK_PERIOD_MS * 50);
         switch (display_instance->getDisplayState()) {
         case Display::DISPLAY_SM_STATES::SELF_TEST:
             display_instance->selfTest();

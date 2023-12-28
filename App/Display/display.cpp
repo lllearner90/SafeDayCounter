@@ -85,12 +85,12 @@ void Display::selfTest(void) {
     uint8_t s[5] = {"    "};
     disp_driver->printDirect(s);
     // TODO: Update ticks count to represent 1s
-    osDelay(1);
+    osDelay(portTICK_PERIOD_MS * 1000);
 
     uint8_t st[5] = "8888";
     disp_driver->printDirect(st);
     // TODO: Update ticks count to represent 1s
-    osDelay(1);
+    osDelay(portTICK_PERIOD_MS * 1000);
 }
 
 Display::DISPLAY_SM_STATES Display::getDisplayState(void) {

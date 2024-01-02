@@ -11,10 +11,10 @@
 #include "display.h"
 #include "bcd.h"
 #include "cmsis_os.h"
+#include "conv.h"
 #include "elog.h"
 #include "stm32g0xx_hal.h"
 
-#include <cstdio>
 #include <cstring>
 #include <string>
 
@@ -109,7 +109,8 @@ void Display::update(void) {
         osDelay(5000 - 100);
         update_state = TIME;
 
-        std::sprintf(year, "%.2f", display_data.year_cnt);
+        // std::sprintf(year, "%.2f", display_data.year_cnt);
+        floatToString(display_data.year_cnt, year, 2, sizeof(year));
         disp_driver->print(year);
         break;
 

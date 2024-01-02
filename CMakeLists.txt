@@ -29,6 +29,7 @@ add_executable(${PROJECT_NAME}
     "App/Calendar/calendar.cpp"
 
     "App/Utility/bcd.cpp"
+    "App/Utility/conv.cpp"
 
     "App/Config/config_manager.cpp"
 )

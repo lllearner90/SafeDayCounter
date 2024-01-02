@@ -152,7 +152,7 @@ int main(void) {
     MX_USART2_UART_Init();
     MX_RTC_Init();
     /* USER CODE BEGIN 2 */
-    CalendarSTM32::init(&hrtc);
+    // CalendarSTM32::init(&hrtc);
     elog_init();
 
     elog_set_fmt(ELOG_LVL_ASSERT, ELOG_FMT_ALL & ~ELOG_FMT_P_INFO);
@@ -311,21 +311,21 @@ static void MX_RTC_Init(void) {
 
     /** Initialize RTC and set the Time and Date
      */
-    sTime.Hours          = 0x0;
-    sTime.Minutes        = 0x0;
+    sTime.Hours          = 15;
+    sTime.Minutes        = 20;
     sTime.Seconds        = 0x0;
     sTime.SubSeconds     = 0x0;
     sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-    if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK) {
+    if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK) {
         Error_Handler();
     }
-    sDate.WeekDay = RTC_WEEKDAY_MONDAY;
-    sDate.Month   = RTC_MONTH_JANUARY;
-    sDate.Date    = 0x1;
-    sDate.Year    = 0x0;
+    sDate.WeekDay = RTC_WEEKDAY_SUNDAY;
+    sDate.Month   = RTC_MONTH_DECEMBER;
+    sDate.Date    = 31;
+    sDate.Year    = 23;
 
-    if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK) {
+    if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK) {
         Error_Handler();
     }
 
@@ -551,7 +551,7 @@ void StartIdleTask(void *argument) {
     /* Infinite loop */
     for (;;) {
         // TODO: Schedule frequency
-        osDelay(portTICK_PERIOD_MS * 500);
+        osDelay(pdMS_TO_TICKS(500));
         config->run();
     }
     /* USER CODE END 5 */
@@ -569,11 +569,20 @@ void StartDisplayTask(void *argument) {
     elog_i("Task", "Display started");
     SafeDays *safe_days_instance = new SafeDays();
     Display  *display_instance   = Display::getInstance();
+    Calendar *calendar_instance  = CalendarSTM32::getInstance();
 
+    // GPIO_InitTypeDef GPIO_InitStruct{0};
+    // GPIO_InitStruct.Pin = GPIO_PIN_0;
+    // GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+    // GPIO_InitStruct.Pull = GPIO_NOPULL;
+    // HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, (GPIO_PinState) 1);
     /* Infinite loop */
     for (;;) {
+        // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_0);
         // TODO: Update ticks count to represent 50 ms
-        osDelay(portTICK_PERIOD_MS * 50);
+        osDelay(pdMS_TO_TICKS(100));
+        safe_days_instance->update();
         switch (display_instance->getDisplayState()) {
         case Display::DISPLAY_SM_STATES::SELF_TEST:
             display_instance->selfTest();
@@ -587,6 +596,7 @@ void StartDisplayTask(void *argument) {
                 safe_days_instance->getSafeDaysCount());
             display_instance->setSafeYearCount(
                 safe_days_instance->getSafeYearsCount());
+            display_instance->setTime(calendar_instance->getTime());
             break;
 
         case Display::DISPLAY_SM_STATES::CONFIG_MODE:

@@ -16,16 +16,16 @@
 
 SafeDays::SafeDays(/* args */) {
     // TODO :Read the values from persistent memory
-    safe_days_count = 0;
-    safe_year_count = 0;
-    stored_date     = Calendar::date_t{0};
+    safe_days_count = 485;
+    safe_year_count = 1;
+    stored_date     = Calendar::date_t{31, Calendar::DECEMBER, 23};
 }
 
 SafeDays::~SafeDays() {}
 
 int SafeDays::getSafeDaysCount(void) { return safe_days_count; }
 
-int SafeDays::getSafeYearsCount(void) { return safe_year_count; }
+float SafeDays::getSafeYearsCount(void) { return safe_year_count; }
 
 void SafeDays::IncrementSafeDays(void) {
     safe_days_count++;
@@ -55,6 +55,10 @@ void SafeDays::setSafeYearsCount(const int years) {
     // TODO: store to persistent memory
 }
 
+void SafeDays::calSafeYearsCount(const int safe_days_cnt) {
+    safe_year_count = (float) safe_days_cnt / kDAYS_IN_A_YEAR;
+}
+
 void SafeDays::update(void) {
     // TODO: implement
     int num_of_days = 0;
@@ -67,6 +71,8 @@ void SafeDays::update(void) {
     // computed the days elapsed
     if ((current_date != stored_date) && (current_date > stored_date)) {
         num_of_days = current_date - stored_date;
+        // TODO: save/update stored date
+        stored_date = current_date;
     }
     // 3. if the stored day is less than current day & year;
     else {
@@ -76,10 +82,11 @@ void SafeDays::update(void) {
     }
     // Increment years
     safe_days_count += num_of_days;
-    while (safe_days_count >= kDAYS_IN_A_YEAR) {
-        IncrementSafeYears();
-        safe_days_count -= kDAYS_IN_A_YEAR;
-    }
+    // while (safe_days_count >= kDAYS_IN_A_YEAR) {
+    //     IncrementSafeYears();
+    //     safe_days_count -= kDAYS_IN_A_YEAR;
+    // }
+    calSafeYearsCount(safe_days_count);
     // Set days
     setSafeDaysCount(safe_days_count);
 }

@@ -150,6 +150,7 @@ void TLC591x::print(const char *s) {
             pos = 0;
         else
             pos = s[i] - 32;
+
         c = ICM7218_segment_map[pos];
         // write(c);
         sendValue(c);
@@ -159,9 +160,9 @@ void TLC591x::print(const char *s) {
 
 void TLC591x::print(unsigned int n) {
     uint8_t size;
-    if (numchips > 2)
-        size = 2;
-    else
+    // if (numchips > 2)
+    //     size = 2;
+    // else
         size = numchips;
     for (uint8_t i = 0; i < size; i++) {
         // write(n);
@@ -311,7 +312,7 @@ void TLC591x::toggleLE() {
     // TLC5916 minimum LE pulse time is 20 ns, so don't need to worry about
     // putting in a hard-coded delay.
     digitalWrite(TLC591x::TLC591x_PINS::LE, PIN_STATE::HIGH);
-    osDelay(portTICK_PERIOD_MS * 50);
+    osDelay(pdMS_TO_TICKS(50));
     digitalWrite(TLC591x::TLC591x_PINS::LE, PIN_STATE::LOW);
 }
 
@@ -319,7 +320,7 @@ void TLC591x::toggleCLK() {
     // TLC5916 minimum CLK pulse time is 20 ns, so don't need to worry about
     // putting in a hard-coded delay.
     digitalWrite(TLC591x_PINS::CLK, PIN_STATE::HIGH);
-    osDelay(portTICK_PERIOD_MS * 50);
+    osDelay(pdMS_TO_TICKS(50));
     digitalWrite(TLC591x_PINS::CLK, PIN_STATE::LOW);
 }
 

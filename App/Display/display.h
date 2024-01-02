@@ -30,7 +30,7 @@ class Display {
 
     void setTime(Calendar::time_t time);
     void setSafeDayCount(int safe_days);
-    void setSafeYearCount(int safe_years);
+    void setSafeYearCount(float safe_years);
 
     // No usecase to actually implement these routines
     // void getTime();
@@ -55,6 +55,13 @@ class Display {
         MAX_SIZE   = 5
     };
     uint8_t display_buf[static_cast<uint16_t>(DISPLAY_BYTE_POS::MAX_SIZE)];
+
+    struct display_data_t {
+        uint8_t  time_hr;
+        uint8_t  time_min;
+        uint16_t day_cnt;
+        float    year_cnt;
+    } display_data;
 
   private:
     Display(/* args */);

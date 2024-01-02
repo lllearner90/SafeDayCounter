@@ -66,7 +66,7 @@ class Calendar {
     virtual time_t getTime(void) = 0;
     virtual date_t getDate(void) = 0;
 
-    static Calendar *getInstance(void);
+    // static Calendar *getInstance(void);
     friend bool      operator==(const date_t &lhs_date, const date_t &rhs_date);
     friend bool      operator!=(const date_t &lhs_date, const date_t &rhs_date);
     // FIXME: Create a function to compute the difference instead

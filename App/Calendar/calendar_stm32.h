@@ -31,7 +31,7 @@ class CalendarSTM32 : public Calendar {
     Calendar::time_t getTime(void) override;
     Calendar::date_t getDate(void) override;
 
-    static Calendar *getInstance(void);
+    static CalendarSTM32 *getInstance(void);
 
   private:
     CalendarSTM32();

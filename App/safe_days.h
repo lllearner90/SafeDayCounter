@@ -30,7 +30,7 @@ class SafeDays {
     /// @brief Getter to retrieve the safe years count
     /// @param None
     /// @return Safe years count
-    int getSafeYearsCount(void);
+    float getSafeYearsCount(void);
     /// @brief Increment Safe Days
     /// @param None
     void IncrementSafeDays(void);
@@ -46,8 +46,8 @@ class SafeDays {
     /// @brief Constant representing days in a year
     const int kDAYS_IN_A_YEAR = 365;
 
-    int safe_days_count;
-    int safe_year_count;
+    int              safe_days_count;
+    float            safe_year_count;
     Calendar::date_t stored_date;
 
     /// @brief Set/override Safe day count
@@ -58,6 +58,10 @@ class SafeDays {
     /// @brief Set/override Safe year count
     /// @param years New safe year count
     void setSafeYearsCount(const int years);
+
+    /// @brief Calculate Safe year count for the given safe days count
+    /// @param safe_days_cnt safe days count
+    void calSafeYearsCount(const int safe_days_cnt);
 };
 
 #endif   // End of _SAFE_DAYS_H_

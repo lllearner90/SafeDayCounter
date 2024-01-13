@@ -38,7 +38,7 @@ void floatToString(float value, char *buffer, uint8_t precision,
 
     // Extract integer part
     uint32_t intValue  = static_cast<uint32_t>(value);
-    uint32_t fracValue = static_cast<uint32_t>(
+    volatile uint32_t fracValue = static_cast<uint32_t>(
         (value - static_cast<float>(intValue)) * pow(10, precision));
 
     // Convert the integer part to string manually
@@ -58,14 +58,14 @@ void floatToString(float value, char *buffer, uint8_t precision,
     } while (intValue > 0);
 
     // Reverse the integer part in the buffer
-    for (size_t i = 0, j = bufferSize - 1; i < j; ++i, --j) {
-        char temp = buffer[i];
-        buffer[i] = buffer[j];
-        buffer[j] = temp;
-    }
+    // for (size_t i = 0, j = bufferSize - 1; i < j; ++i, --j) {
+    //     char temp = buffer[i];
+    //     buffer[i] = buffer[j];
+    //     buffer[j] = temp;
+    // }
 
-    buffer += bufferSize;
-    bufferSize = 1;   // Reset bufferSize to 1 for the decimal point
+    // buffer += bufferSize;
+    // bufferSize = 1;   // Reset bufferSize to 1 for the decimal point
 
     // Check if there's enough space for the decimal point
     if (bufferSize < 1) {

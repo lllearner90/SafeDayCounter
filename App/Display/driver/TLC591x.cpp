@@ -139,6 +139,7 @@ void TLC591x::print(const char *s) {
     int     i;
     char    c;
     uint8_t pos;
+    bool    dp_requested = false;
 
     for (i = numchips - 1; i >= 0; i--) {
         // Need a range check and adjustment, since segment map starts
@@ -146,14 +147,24 @@ void TLC591x::print(const char *s) {
         // Out of range default to a blank character
         // if (s[i] > 127) pos = 0; --> This would be a negative value, included
         // in next check
-        if (s[i] < 32)
-            pos = 0;
-        else
-            pos = s[i] - 32;
+        if (s[i] == '.') {
+            dp_requested = true;
+        }
+        else {
+            if (s[i] < 32) { pos = 0; }
+            else {
+                pos = s[i] - 32;
+            }
 
-        c = ICM7218_segment_map[pos];
-        // write(c);
-        sendValue(c);
+            c = ICM7218_segment_map[pos];
+            if (dp_requested)
+            {
+                c |= 0x01;
+                dp_requested = false;
+            }
+            // write(c);
+            sendValue(c);
+        }
     }
     toggleLE();
 }

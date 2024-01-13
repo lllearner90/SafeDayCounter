@@ -11,3 +11,5 @@ githubConnect
 build/*
 Debug/*
 Release/*
+
+*.launch

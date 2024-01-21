@@ -280,7 +280,9 @@ void SystemClock_Config(void) {
 static void MX_RTC_Init(void) {
 
     /* USER CODE BEGIN RTC_Init 0 */
-
+    const uint32_t rtc_signature_0   = 0xAA5500FF;
+    const uint32_t rtc_signature_1   = 0x00FFAA55;
+    bool           is_rtc_data_valid = false;
     /* USER CODE END RTC_Init 0 */
 
     RTC_TimeTypeDef sTime = {0};
@@ -306,36 +308,45 @@ static void MX_RTC_Init(void) {
     }
 
     /* USER CODE BEGIN Check_RTC_BKUP */
-
-    /* USER CODE END Check_RTC_BKUP */
-
-    /** Initialize RTC and set the Time and Date
-     */
-    sTime.Hours          = 15;
-    sTime.Minutes        = 20;
-    sTime.Seconds        = 0x0;
-    sTime.SubSeconds     = 0x0;
-    sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-    sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-    if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK) {
-        Error_Handler();
-    }
-    sDate.WeekDay = RTC_WEEKDAY_SUNDAY;
-    sDate.Month   = RTC_MONTH_DECEMBER;
-    sDate.Date    = 31;
-    sDate.Year    = 23;
-
-    if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK) {
-        Error_Handler();
+    if ((rtc_signature_0 == HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR0))
+        && (rtc_signature_1 == HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR1))) {
+        is_rtc_data_valid = true;
     }
 
-    /** Enable Calibration
-     */
-    if (HAL_RTCEx_SetCalibrationOutPut(&hrtc, RTC_CALIBOUTPUT_1HZ) != HAL_OK) {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN RTC_Init 2 */
+    if (!is_rtc_data_valid) {
+        /* USER CODE END Check_RTC_BKUP */
 
+        /** Initialize RTC and set the Time and Date
+         */
+        sTime.Hours          = 15;
+        sTime.Minutes        = 20;
+        sTime.Seconds        = 0x0;
+        sTime.SubSeconds     = 0x0;
+        sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+        sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+        if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK) {
+            Error_Handler();
+        }
+        sDate.WeekDay = RTC_WEEKDAY_SUNDAY;
+        sDate.Month   = RTC_MONTH_DECEMBER;
+        sDate.Date    = 31;
+        sDate.Year    = 23;
+
+        if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK) {
+            Error_Handler();
+        }
+
+        /** Enable Calibration
+         */
+        if (HAL_RTCEx_SetCalibrationOutPut(&hrtc, RTC_CALIBOUTPUT_1HZ)
+            != HAL_OK) {
+            Error_Handler();
+        }
+        /* USER CODE BEGIN RTC_Init 2 */
+        // set rtc_signatures
+        HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR0, rtc_signature_0);
+        HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR1, rtc_signature_1);
+    }
     /* USER CODE END RTC_Init 2 */
 }
 

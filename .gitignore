@@ -8,7 +8,7 @@
 
 githubConnect
 
-build/*
+*build*
 Debug/*
 Release/*
 

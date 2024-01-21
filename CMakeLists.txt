@@ -36,4 +36,3 @@ add_executable(${PROJECT_NAME}
 
 add_st_target_properties(${PROJECT_NAME})
 add_logger_target_properties(${PROJECT_NAME})
-

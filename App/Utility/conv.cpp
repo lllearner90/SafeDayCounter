@@ -15,91 +15,43 @@
  *  Function Definitions
  */
 
-void floatToString(float value, char *buffer, uint8_t precision,
-                   size_t bufferSize) {
-    // Check if the buffer size is sufficient
-    if (bufferSize == 0) {
-        // Handle error: Buffer size is zero
-        // TODO: throw an exception / log error
-        return;
+void floatToChar(float x, char *p, uint8_t precision, size_t bufferSize) {
+    char *s = p + bufferSize;   // go to end of buffer
+    *--s    = '\0';
+    uint16_t decimals;   // variable to store the decimals
+    int units;   // variable to store the units (part to left of decimal place)
+    int precision_multiplier = pow(10, precision);
+    if (x < 0) {   // take care of negative numbers
+        decimals = (int) (x * -precision_multiplier)
+                   % precision_multiplier;   // make 1000 for 3 decimals etc.
+        units = (int) (-1 * x);
+    } else {   // positive numbers
+        decimals = (int) (x * precision_multiplier) % precision_multiplier;
+        units    = (int) x;
     }
-
-    // Handle negative values
-    if (value < 0.0f) {
-        if (bufferSize < 2) {
-            // Handle error: Insufficient space for the negative sign
-            // TODO: throw an exception
-            return;
-        }
-        *buffer++ = '-';
-        value     = -value;
-        bufferSize--;
-    }
-
-    // Extract integer part
-    uint32_t intValue  = static_cast<uint32_t>(value);
-    volatile uint32_t fracValue = static_cast<uint32_t>(
-        (value - static_cast<float>(intValue)) * pow(10, precision));
-
-    // Convert the integer part to string manually
+    // Check if the unit + decimal fits
+    // else truncate the decimal part
+    int num_of_digits_units = (units < 10)     ? 1
+                              : (units < 100)  ? 2
+                              : (units < 1000) ? 3
+                                               : 4;
     do {
-        if (bufferSize < 1) {
-            // Handle error: Insufficient space for the integer part
-            // TODO: throw an exception
-            return;
-        }
-
-        uint32_t digit = intValue % 10;
-        intValue /= 10;
-
-        *buffer++ = '0' + digit;
-        bufferSize--;
-
-    } while (intValue > 0);
-
-    // Reverse the integer part in the buffer
-    // for (size_t i = 0, j = bufferSize - 1; i < j; ++i, --j) {
-    //     char temp = buffer[i];
-    //     buffer[i] = buffer[j];
-    //     buffer[j] = temp;
-    // }
-
-    // buffer += bufferSize;
-    // bufferSize = 1;   // Reset bufferSize to 1 for the decimal point
-
-    // Check if there's enough space for the decimal point
-    if (bufferSize < 1) {
-        // Handle error: Insufficient space for the decimal point
-        // TODO: throw an exception
-        return;
-    }
-
-    // Add decimal point
-    *buffer++ = '.';
-    bufferSize--;
-
-    // Convert the fractional part to string manually
-    while (precision > 0) {
-        if (bufferSize < 1) {
-            // Handle error: Insufficient space for the fractional part
-            // TODO: throw an exception
-            return;
-        }
-
-        uint32_t digit = fracValue % 10;
-        fracValue /= 10;
-
-        *buffer++ = '0' + digit;
-        bufferSize--;
-
+        // -1 is the space for null termination
+        (num_of_digits_units + precision) > (bufferSize - 1) ? decimals /= 10
+                                                             : decimals;
         precision--;
-    }
+    } while (precision);
 
-    // Null-terminate the string
-    if (bufferSize >= 1) {
-        *buffer = '\0';
-    } else {
-        // Handle error: Insufficient space for null-termination
-        // TODO: throw an exception
+    do {
+        *--s = (decimals % 10) + '0';
+        decimals /= 10;   // repeat for as many decimal places as you need
+    } while (decimals);
+    *--s = '.';
+
+    while (units > 0) {
+        *--s = (units % 10) + '0';
+        units /= 10;
     }
+    if (x < 0)
+        *--s = '-';   // unary minus sign for negative numbers
 }

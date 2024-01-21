@@ -1,0 +1,43 @@
+FROM ubuntu:latest
+
+LABEL MAINTAINER="Amardeep Shetty"
+ARG DEBIAN_FRONTEND=noninteractive
+ARG BUILD_DIR
+ARG TIMEZONE
+
+ENV TZ=TIMEZONE
+
+# Install Ubuntu packages, as each RUN commits the layer to image, need to
+# chain commands and clean up in the end to keep the image small
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    git \
+    # gmock gmock-devel gtest gtest-devel \
+    cmake extra-cmake-modules ninja-build build-essential\
+    g++ gcc \
+    valgrind && \
+    # libasan liblsan lcov && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists
+
+
+ARG GTEST_VERSION=v1.14.0
+# Needed to vallidate certificates with github
+RUN git config --global http.sslVerify false
+
+RUN git clone https://github.com/google/googletest.git  && \
+    cd googletest && \
+    git checkout ${GTEST_VERSION}
+
+RUN  cd googletest && \
+    mkdir build && \
+    cd build && \
+    cmake -GNinja .. && \
+    ninja && \
+    ninja install 
+# && \
+# cd / && \
+# rm -rf googletest
+
+RUN mkdir -p ${BUILD_DIR}
+WORKDIR ${BUILD_DIR}

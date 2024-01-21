@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  gtest_test_env:
+    image: gtest_test_env:0.1
+    # environment:
+    #   - TZ=Europe/Netherlands
+    build:
+      context: .
+      dockerfile: DockerFile
+      args:
+        BUILD_DIR: /mnt/ws
+        TIMEZONE: Europe/Berlin
+    stdin_open: true
+    tty: true
+    hostname: gtest_test_env
+    privileged: false
+    cap_add:
+      - all
+    
+    entrypoint: ./setup/entrypoint
+    volumes:
+      - type: bind
+        source: ../
+        target: /mnt/ws
+        consistency: consistent
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+        
+      # - type: bind
+      #   source: ${HOME}/.docker_bash_history
+      #   target: /root/.bash_history
+
+      # - type: bind
+      #   source: ${HOME}/.docker_bashrc
+      #   target: /root/.bashrc

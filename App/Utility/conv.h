@@ -14,7 +14,5 @@
 #include <cstdint>
 #include <cstdlib>
 
-void floatToString(float value, char *buffer, uint8_t precision,
-                   size_t bufferSize);
-
+void floatToChar(float x, char *p, uint8_t precision, size_t bufferSize);
 #endif   // End of _CONV_H_

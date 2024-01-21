@@ -110,7 +110,7 @@ void Display::update(void) {
         update_state = TIME;
 
         // std::sprintf(year, "%.2f", display_data.year_cnt);
-        floatToString(display_data.year_cnt, year, 2, sizeof(year));
+        floatToChar(display_data.year_cnt, year, 2, sizeof(year));
         disp_driver->print(year);
         break;
 

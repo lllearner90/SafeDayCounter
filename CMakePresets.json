@@ -47,10 +47,6 @@
         },
         {
             "name": "release",
-            "configurePreset": "release"
-        },
-        {
-            "name": "release",
             "description": "",
             "displayName": "",
             "configurePreset": "release"

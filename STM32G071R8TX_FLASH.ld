@@ -173,6 +173,13 @@ SECTIONS
     . = ALIGN(8);
   } >RAM
 
+  /* Non-volatile RAM section */
+  .nvsram :
+  {
+    . = ALIGN(4);
+    KEEP(*(.NVSRAM))  /* Keep all sections named NVSRAM */
+  } >RAM
+
   /* Remove information from the compiler libraries */
   /DISCARD/ :
   {

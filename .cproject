@@ -313,7 +313,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Software/App/Utility}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger/plugins/flash}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Display/driver}&quot;"/>
@@ -345,7 +344,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Software/App/Utility}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger/plugins/flash}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Display/driver}&quot;"/>
@@ -372,7 +370,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Software/App/Utility}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger/plugins/flash}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Logger/repo/easylogger/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/App/Display/driver}&quot;"/>
@@ -495,7 +492,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Logger/repo/demo/|Logger/repo/docs/|Logger/repo/easylogger/plugins/|Logger/repo/easylogger/port/" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="App"/>
+						<entry excluding="Logger/repo/demo/|Logger/repo/docs/|Logger/repo/easylogger/plugins/|Logger/repo/easylogger/port/|*/test" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="App"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
@@ -511,7 +508,14 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/Software"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/Software"/>
+		</configuration>
+	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release.2066097123;com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release.2066097123.;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.1689987764;com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.cpp.compiler.input.cpp.2130601887">

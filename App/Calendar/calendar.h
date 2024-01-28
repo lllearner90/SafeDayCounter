@@ -26,9 +26,15 @@
 
 class Calendar {
   public:
-    enum class DaysOfWeek { MONDAY = 1, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY };
+    enum class DaysOfWeek : uint8_t {
+        MONDAY = 1,
+        TUESDAY,
+        WEDNESDAY,
+        THURSDAY,
+        FRIDAY
+    };
 
-    enum Months {
+    enum Months : uint8_t {
         JANUARY = 1,
         FEBRUARY,
         MARCH,

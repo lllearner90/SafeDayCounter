@@ -110,7 +110,6 @@ target_include_directories(
     "$<$<AND:$<CONFIG:Debug>,$<COMPILE_LANGUAGE:CXX>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger/inc>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:ASM>>:${PROJECT_SOURCE_DIR}/App/Logger>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:ASM>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger>"
-    "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:ASM>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger/plugins/flash>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:ASM>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger/inc>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:ASM>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger/src>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:ASM>>:${PROJECT_SOURCE_DIR}/App/Display/driver>"
@@ -132,7 +131,6 @@ target_include_directories(
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:C>>:${PROJECT_SOURCE_DIR}/App>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:C>>:${PROJECT_SOURCE_DIR}/App/Logger>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:C>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger>"
-    "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:C>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger/plugins/flash>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:C>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger/inc>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:C>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger/src>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:C>>:${PROJECT_SOURCE_DIR}/App/Display/driver>"
@@ -163,7 +161,6 @@ target_include_directories(
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:CXX>>:${PROJECT_SOURCE_DIR}/App>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:CXX>>:${PROJECT_SOURCE_DIR}/App/Logger>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:CXX>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger>"
-    "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:CXX>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger/plugins/flash>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:CXX>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger/inc>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:CXX>>:${PROJECT_SOURCE_DIR}/App/Logger/repo/easylogger/src>"
     "$<$<AND:$<NOT:$<CONFIG:Debug>>,$<COMPILE_LANGUAGE:CXX>>:${PROJECT_SOURCE_DIR}/App/Display/driver>"
@@ -222,16 +219,8 @@ target_link_options(
     "$<$<NOT:$<CONFIG:Debug>>:${PROJECT_SOURCE_DIR}/STM32G071R8TX_FLASH.ld>"
 )
 
-set(
-    RELEASE_SOURCES
-    "App/Utility/test/conv_test.cpp"
-)
-
-list(TRANSFORM RELEASE_SOURCES REPLACE "(.+)" "$<$<NOT:$<CONFIG:Debug>>:\\1>")
-
 target_sources(
     ${TARGET_NAME} PRIVATE
-    "${RELEASE_SOURCES}"
     "App/Config/config_manager.cpp"
     "App/Logger/elog_port.c"
     "App/Logger/repo/easylogger/src/elog_async.c"
@@ -255,6 +244,8 @@ target_sources(
     "Core/Src/system_stm32g0xx.c"
     "Core/Startup/startup_stm32g071r8tx.s"
     "Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_cortex.c"
+    "Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_crc_ex.c"
+    "Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_crc.c"
     "Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma_ex.c"
     "Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_dma.c"
     "Drivers/STM32G0xx_HAL_Driver/Src/stm32g0xx_hal_exti.c"

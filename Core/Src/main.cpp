@@ -101,6 +101,7 @@ static void MX_USART1_IRDA_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_DMA_Init(void);
 static void MX_RTC_Init(void);
+static void MX_CRC_Init(void);
 void        StartIdleTask(void *argument);
 void        StartDisplayTask(void *argument);
 
@@ -152,6 +153,7 @@ int main(void) {
     MX_USART1_IRDA_Init();
     MX_USART2_UART_Init();
     MX_RTC_Init();
+    MX_CRC_Init();
     /* USER CODE BEGIN 2 */
     // CalendarSTM32::init(&hrtc);
     elog_init();
@@ -310,7 +312,7 @@ static void MX_CRC_Init(void) {
 static void MX_RTC_Init(void) {
 
     /* USER CODE BEGIN RTC_Init 0 */
-    const uint32_t rtc_signature_0   = 0xAA5500FF;
+    const uint32_t rtc_signature_0   = 0x00AA55FF;
     const uint32_t rtc_signature_1   = 0x00FFAA55;
     bool           is_rtc_data_valid = false;
     /* USER CODE END RTC_Init 0 */
@@ -348,8 +350,8 @@ static void MX_RTC_Init(void) {
 
         /** Initialize RTC and set the Time and Date
          */
-        sTime.Hours          = 15;
-        sTime.Minutes        = 20;
+        sTime.Hours          = 18;
+        sTime.Minutes        = 30;
         sTime.Seconds        = 0x0;
         sTime.SubSeconds     = 0x0;
         sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
@@ -357,10 +359,10 @@ static void MX_RTC_Init(void) {
         if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK) {
             Error_Handler();
         }
-        sDate.WeekDay = RTC_WEEKDAY_SUNDAY;
-        sDate.Month   = RTC_MONTH_DECEMBER;
-        sDate.Date    = 31;
-        sDate.Year    = 23;
+        sDate.WeekDay = RTC_WEEKDAY_SATURDAY;
+        sDate.Month   = RTC_MONTH_FEBRUARY;
+        sDate.Date    = 3;
+        sDate.Year    = 24;
 
         if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK) {
             Error_Handler();

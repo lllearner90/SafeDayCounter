@@ -16,11 +16,14 @@
  */
 
 void floatToChar(float x, char *p, uint8_t precision, size_t bufferSize) {
-    char *s = p + bufferSize;   // go to end of buffer
+    char *s = p;
+    if (x < 0)
+        *s = '-';   // unary minus sign for negative numbers
+    s = p + bufferSize;   // go to end of buffer
     *--s    = '\0';
-    uint16_t decimals;   // variable to store the decimals
-    int units;   // variable to store the units (part to left of decimal place)
-    int precision_multiplier = pow(10, precision);
+    volatile uint16_t decimals;   // variable to store the decimals
+    volatile int units;   // variable to store the units (part to left of decimal place)
+    volatile int precision_multiplier = pow(10, precision);
     if (x < 0) {   // take care of negative numbers
         decimals = (int) (x * -precision_multiplier)
                    % precision_multiplier;   // make 1000 for 3 decimals etc.
@@ -52,6 +55,5 @@ void floatToChar(float x, char *p, uint8_t precision, size_t bufferSize) {
         *--s = (units % 10) + '0';
         units /= 10;
     }
-    if (x < 0)
-        *--s = '-';   // unary minus sign for negative numbers
+    
 }

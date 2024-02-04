@@ -93,7 +93,7 @@ void Display::update(void) {
         TIME
     } update_state   = DAYS_CNT;
     uint16_t data    = 0;
-    char     year[5] = "";
+    char     year[6] = "";
 
     switch (update_state) {
     case DAYS_CNT:
@@ -107,7 +107,7 @@ void Display::update(void) {
 
     case YEAR_CNT:
         osDelay(5000 - 100);
-        update_state = TIME;
+        update_state = DAYS_CNT;
 
         // std::sprintf(year, "%.2f", display_data.year_cnt);
         floatToChar(display_data.year_cnt, year, 2, sizeof(year));

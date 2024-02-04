@@ -22,15 +22,23 @@ extern CRC_HandleTypeDef hcrc;
 uint8_t safe_day_database[64] __attribute__((section(".NVSRAM")));
 
 SafeDays::SafeDays(/* args */)
-    : safe_days_count{0}, safe_year_count{0}, stored_date{0} {
+    : safe_days_count{550}, safe_year_count{0}, stored_date{0} {
     // TODO :Read the values from persistent memory
-
-    if (validateSafeDayDatabase()) {
+    bool is_valid = validateSafeDayDatabase();
+    if (is_valid) {
 
         safe_days_count = getSafeDayCountFromMemory();
         safe_year_count = getSafeYearCountFromMemory();
         stored_date     = getStoredDateFromMemory();
     } else {
+    	Calendar        *calendar_instance = CalendarSTM32::getInstance();
+    	Calendar::date_t current_date      = calendar_instance->getDate();
+    	storeSafeDayCountToMemory();
+    	storeSafeYearCountToMemory();
+
+    	// save/update stored date
+    	stored_date = current_date;
+    	storeStoredDateToMemory();
     }
 }
 

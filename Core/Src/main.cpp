@@ -206,7 +206,7 @@ int main(void) {
         osThreadNew(StartDisplayTask, NULL, &DisplayTask_attributes);
 
     /* USER CODE BEGIN RTOS_THREADS */
-    /* add threads, ... */
+    elogHandle = osThreadNew(elog_entry, NULL, &elog_attributes);
     /* USER CODE END RTOS_THREADS */
 
     /* USER CODE BEGIN RTOS_EVENTS */

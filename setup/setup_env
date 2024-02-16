@@ -1,25 +1,28 @@
 #!/bin/bash
 
-service=gtest_test_env
+# Function to display usage
+usage() {
+    echo "Usage: $0 -p <port_range> -c <name>"
+    echo "Options:"
+    echo "  -p <port_map>: Port mapping in the form 'start_port:end_port'"
+    echo "  -c <name>: Container services (check services in docker-compose.yaml)"
+    exit 1
+}
+
+while getopts "pc" Option
+do
+    case $Option in
+    p) port_map="$port_map - p $OPTARG";;
+    c) service="$OPTARG";;
+    *) Usage ;;
+    esac
+done
+
+echo "Spawning container ${service}"
 gitRootPath=$(git rev-parse --show-toplevel)
 echo "${gitRootPath}"
 compose_file=$gitRootPath/setup/docker-compose.yaml
 
-# Usage(){
-#     echo "Usage: setup_env [Options] [command]"
-#     echo "Options:"
-#     echo "          -p ports Set the port map which is to be exposed"
-#     echo "example: 'setup_env -p 5000:5000'"
-#     exit 1
-# }
-
-# while getopts "p" Option
-# do
-#     case $Option in
-#     p) port_map="$port_map - p $OPTARG";;
-#     *) Usage ;;
-#     esac
-# done
 
 shift $((OPTIND-1))
 

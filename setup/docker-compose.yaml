@@ -27,10 +27,48 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
       - "/etc/timezone:/etc/timezone:ro"
         
-      # - type: bind
-      #   source: ${HOME}/.docker_bash_history
-      #   target: /root/.bash_history
+      - type: bind
+        source: ${HOME}/.docker_bash_history
+        target: /root/.bash_history
 
-      # - type: bind
-      #   source: ${HOME}/.docker_bashrc
-      #   target: /root/.bashrc
+      - type: bind
+        source: ${HOME}/.docker_bashrc
+        target: /root/.bashrc
+
+  qemu_test_env:
+    image: qemu_test_env:0.1
+    build:
+      context: .
+      dockerfile: DockerFileQemu
+      args:
+        BUILD_DIR: /mnt/ws
+        TIMEZONE: Europe/Berlin
+    stdin_open: true
+    tty: true
+    hostname: qemu_test_env
+    privileged: false
+    ports: 
+      - 1234:1234
+    cap_add:
+      - all
+
+    entrypoint: /bin/bash
+    # "qemu-system-arm -cpu cortex-m3 -machine stm32vldiscovery -nographic -s -S -semihosting -kernel build/debug/build/Software.elf -gdb tcp::5000"
+
+    volumes:
+      - type: bind
+        source: ../
+        target: /mnt/ws
+        consistency: consistent
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+        
+      - type: bind
+        source: ${HOME}/.docker_bash_history
+        target: /root/.bash_history
+
+      - type: bind
+        source: ${HOME}/.docker_bashrc
+        target: /root/.bashrc
+
+

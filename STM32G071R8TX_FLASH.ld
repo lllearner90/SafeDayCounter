@@ -174,7 +174,7 @@ SECTIONS
   } >RAM
 
   /* Non-volatile RAM section */
-  .nvsram :
+  .NVSRAM :
   {
     . = ALIGN(4);
     KEEP(*(.NVSRAM))  /* Keep all sections named NVSRAM */

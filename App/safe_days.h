@@ -21,8 +21,11 @@
 
 class SafeDays {
   public:
-    SafeDays(/* args */);
-    ~SafeDays();
+    /// @brief Fetches the SafeDays Instance
+    /// @param  None
+    /// @return Instance of class SafeDays
+    /// @note Singleton class
+    static SafeDays *getInstance(void);
     /// @brief Getter to retrieve the safe days count
     /// @param None
     /// @return Safe day count
@@ -38,11 +41,16 @@ class SafeDays {
     /// @param None
     void IncrementSafeYears(void);
 
+    /// @brief Set/override Safe day count
+    /// @param days New safe day count
+    void setSafeDaysCount(const int days);
+
     /// @brief Handle the safe day/year update logic
     /// @param None
     void update(void);
 
   private:
+    SafeDays(/* args */);
     /// @brief Constant representing days in a year
     const int kDAYS_IN_A_YEAR = 365;
 
@@ -61,10 +69,6 @@ class SafeDays {
         STORED_DATE_OFFSET = SAFE_YEAR_OFFSET + sizeof(safe_year_count),
         END_OFFSET         = STORED_DATE_OFFSET + sizeof(stored_date)
     };
-    /// @brief Set/override Safe day count
-    /// @param days New safe day count
-    /// @note days should not exceed kDAYS_IN_A_YEAR
-    void setSafeDaysCount(const int days);
 
     /// @brief Set/override Safe year count
     /// @param years New safe year count

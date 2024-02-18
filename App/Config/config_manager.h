@@ -33,6 +33,21 @@ class ConfigManager {
         MODE_SAFE_DAY = 2
     };
 
+    static const uint8_t SERIAL_HEADER    = 0xAA;
+    static const uint8_t SERIAL_DATA_SIZE = 2;
+
+    typedef struct {
+        uint8_t header;
+        uint8_t cmd;
+        uint8_t data[SERIAL_DATA_SIZE];
+        uint8_t tail;
+    } serial_data_t;
+
+    enum SERIAL_CMD {
+        S_CMD_TIME  = 0x00,
+        s_CMD_SDAYS = 0x01
+    };
+
     CONFIG_STATES config_state;
     CONFIG_TYPE   config_type;
     uint8_t      *key;
@@ -53,6 +68,9 @@ class ConfigManager {
     void configureModeSelect(const uint8_t &data);
     void configureTime(const uint8_t &data);
     void configureSafeDay(const uint8_t &data);
+
+    void parseSerialData(void);
+    void parseIRData(void);
 
   public:
     static ConfigManager *getInstance(void);

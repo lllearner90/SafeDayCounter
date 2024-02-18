@@ -15,15 +15,18 @@
 #include "config_manager.h"
 #include "display.h"
 #include "elog.h"
+#include "safe_days.h"
 
 #include "stm32g0xx_hal.h"
 
 extern IRDA_HandleTypeDef hirda1;
+extern UART_HandleTypeDef huart2;
 
 static const std::string secret_key       = "1234";
 static ConfigManager    *instance         = nullptr;
 static Display          *display_instance = nullptr;
 static const char       *logger_tag       = "ConfigM";
+static SafeDays         *safe_days_instance = nullptr;
 
 ConfigManager *ConfigManager::getInstance(void) {
     // If no instance is created yet, create an instance of config manager
@@ -44,6 +47,40 @@ ConfigManager::ConfigManager(/* args */)
       config_type(CONFIG_TYPE::MODE_SEL), disp_pos(0) {}
 
 void ConfigManager::run(void) {
+    parseSerialData();
+    parseIRData();
+}
+
+void ConfigManager::parseSerialData(void) {
+    serial_data_t     config_data{0};
+    HAL_StatusTypeDef status = HAL_UART_Receive(
+        &huart2, (uint8_t *) &config_data, sizeof(config_data), 100);
+
+    if (status == HAL_OK) {
+        if (SERIAL_HEADER == config_data.header) {
+            elog_d(logger_tag, "S: Header valid");
+            int day_cnt = 0;
+            switch (config_data.cmd) {
+            case SERIAL_CMD::S_CMD_TIME:
+                elog_d(logger_tag, "S: Cmd byte TIME received!");
+                break;
+
+            case SERIAL_CMD::s_CMD_SDAYS:
+                elog_d(logger_tag, "S: Cmd byte TIME received!");
+                std::memcpy(&day_cnt, config_data.data, SERIAL_DATA_SIZE);
+                safe_days_instance->setSafeDaysCount(day_cnt);
+                elog_i(logger_tag, "Updated SafeDayCount = %d", day_cnt);
+                break;
+
+            default:
+                elog_d(logger_tag, "S: Invalid Cmd byte received!");
+                break;
+            }
+        }
+    }
+}
+
+void ConfigManager::parseIRData(void) {
     uint8_t data = 0;
     // FIXME: Timeout should be the time needed to receive a single byte as per
     // bitrate of IR rx

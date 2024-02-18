@@ -11,6 +11,7 @@
  *  Includes
  */
 #include "safe_days.h"
+#include "elog.h"
 #include <cstring>
 #include <exception>
 
@@ -21,28 +22,38 @@ extern CRC_HandleTypeDef hcrc;
 
 uint8_t safe_day_database[64] __attribute__((section(".NVSRAM")));
 
+static const char *logger_tag = "SafeDays";
+
+static SafeDays *instance = nullptr;
+
+SafeDays *SafeDays::getInstance(void) {
+    if (nullptr == instance) {
+        instance = new SafeDays();
+    }
+    return instance;
+}
+
 SafeDays::SafeDays(/* args */)
-    : safe_days_count{550}, safe_year_count{0}, stored_date{0} {
+    : safe_days_count{0}, safe_year_count{0}, stored_date{0} {
     // TODO :Read the values from persistent memory
     bool is_valid = validateSafeDayDatabase();
     if (is_valid) {
-
+        elog_i(logger_tag, "Valid Data!");
         safe_days_count = getSafeDayCountFromMemory();
         safe_year_count = getSafeYearCountFromMemory();
         stored_date     = getStoredDateFromMemory();
     } else {
-    	Calendar        *calendar_instance = CalendarSTM32::getInstance();
-    	Calendar::date_t current_date      = calendar_instance->getDate();
-    	storeSafeDayCountToMemory();
-    	storeSafeYearCountToMemory();
+        elog_i(logger_tag, "Invalid Data!");
+        Calendar        *calendar_instance = CalendarSTM32::getInstance();
+        Calendar::date_t current_date      = calendar_instance->getDate();
+        storeSafeDayCountToMemory();
+        storeSafeYearCountToMemory();
 
-    	// save/update stored date
-    	stored_date = current_date;
-    	storeStoredDateToMemory();
+        // save/update stored date
+        stored_date = current_date;
+        storeStoredDateToMemory();
     }
 }
-
-SafeDays::~SafeDays() {}
 
 int SafeDays::getSafeDaysCount(void) { return safe_days_count; }
 
@@ -63,13 +74,10 @@ void SafeDays::IncrementSafeYears(void) {
 }
 
 void SafeDays::setSafeDaysCount(const int days) {
-    if (days <= kDAYS_IN_A_YEAR) {
-        safe_days_count = days;
-    } else {
-        // TODO: Throw exception or debug message?
-    }
+    safe_days_count = days;
     // store to persistent memory
     storeSafeDayCountToMemory();
+    calSafeYearsCount(safe_days_count);
 }
 
 void SafeDays::setSafeYearsCount(const int years) {
@@ -210,7 +218,8 @@ void SafeDays::update(void) {
     //     IncrementSafeYears();
     //     safe_days_count -= kDAYS_IN_A_YEAR;
     // }
-    calSafeYearsCount(safe_days_count);
-    // Set days
-    setSafeDaysCount(safe_days_count);
+    if (num_of_days) {
+        // Set days
+        setSafeDaysCount(safe_days_count);
+    }
 }

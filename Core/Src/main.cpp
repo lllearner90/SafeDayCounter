@@ -60,7 +60,7 @@ CRC_HandleTypeDef  hcrc;
 osThreadId_t         IdleTaskHandle;
 const osThreadAttr_t IdleTask_attributes = {
   .name       = "IdleTask",
-  .stack_size = 128 * 4,
+  .stack_size = 128 * 8,
   .priority   = (osPriority_t) osPriorityNormal,
 };
 /* Definitions for DisplayTask */
@@ -610,7 +610,7 @@ void StartIdleTask(void *argument) {
 void StartDisplayTask(void *argument) {
     /* USER CODE BEGIN StartDisplayTask */
     elog_i("Task", "Display started");
-    SafeDays *safe_days_instance = new SafeDays();
+    SafeDays *safe_days_instance = SafeDays::getInstance();
     Display  *display_instance   = Display::getInstance();
     Calendar *calendar_instance  = CalendarSTM32::getInstance();
 

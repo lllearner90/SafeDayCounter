@@ -23,17 +23,6 @@ include_directories(
 )
 
 add_executable(${PROJECT_NAME}
-    # "App/safe_days.cpp"
-    # "App/Display/display.cpp"
-    # "App/Display/driver/TLC591x.cpp"
-    # "App/Calendar/calendar_stm32.cpp"
-    # "App/Calendar/calendar.cpp"
-
-    # "App/Utility/bcd.cpp"
-    # "App/Utility/conv.cpp"
-
-    # "App/Config/config_manager.cpp"
-    "App/Logger/elog_port.c"
 )
 
 # add_logger_target_properties(${PROJECT_NAME})

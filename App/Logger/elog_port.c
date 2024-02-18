@@ -30,6 +30,7 @@
 #include "stm32g0xx_hal.h"
 #include <elog.h>
 #include <stdio.h>
+#include "elog_port.h"
 
 extern osSemaphoreId_t elog_lockHandle;
 extern osSemaphoreId_t elog_asyncHandle;

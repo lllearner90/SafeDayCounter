@@ -28,6 +28,7 @@
 #include "display.h"
 #include "elog.h"
 #include "safe_days.h"
+#include "elog_port.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -106,7 +107,6 @@ void        StartIdleTask(void *argument);
 void        StartDisplayTask(void *argument);
 
 /* USER CODE BEGIN PFP */
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/

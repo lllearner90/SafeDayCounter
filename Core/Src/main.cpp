@@ -117,6 +117,14 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
         osSemaphoreRelease(elog_dma_lockHandle);
     }
 }
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart->Instance == huart2.Instance) {
+        static ConfigManager *cm_instance = ConfigManager::getInstance();
+        cm_instance->serialCallback(huart->pRxBuffPtr[0]);
+        HAL_UART_Receive_IT(&huart2, huart2.pRxBuffPtr, 1);
+    }
+}
 /* USER CODE END 0 */
 
 /**
@@ -155,7 +163,6 @@ int main(void) {
     MX_RTC_Init();
     MX_CRC_Init();
     /* USER CODE BEGIN 2 */
-    // CalendarSTM32::init(&hrtc);
     elog_init();
 
     elog_set_fmt(ELOG_LVL_ASSERT, ELOG_FMT_ALL & ~ELOG_FMT_P_INFO);
@@ -489,7 +496,7 @@ static void MX_USART2_UART_Init(void) {
         Error_Handler();
     }
     /* USER CODE BEGIN USART2_Init 2 */
-
+    HAL_UART_Receive_IT(&huart2, huart2.pRxBuffPtr, 1);
     /* USER CODE END USART2_Init 2 */
 }
 
@@ -614,12 +621,6 @@ void StartDisplayTask(void *argument) {
     Display  *display_instance   = Display::getInstance();
     Calendar *calendar_instance  = CalendarSTM32::getInstance();
 
-    // GPIO_InitTypeDef GPIO_InitStruct{0};
-    // GPIO_InitStruct.Pin = GPIO_PIN_0;
-    // GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-    // GPIO_InitStruct.Pull = GPIO_NOPULL;
-    // HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-    // HAL_GPIO_WritePin(GPIOC, GPIO_PIN_0, (GPIO_PinState) 1);
     /* Infinite loop */
     for (;;) {
         // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_0);

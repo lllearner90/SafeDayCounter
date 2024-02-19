@@ -13,6 +13,7 @@
 /*
  *  Includes
  */
+#include "calendar.h"
 #include <stdint.h>
 
 /*
@@ -34,18 +35,19 @@ class ConfigManager {
     };
 
     static const uint8_t SERIAL_HEADER    = 0xAA;
-    static const uint8_t SERIAL_DATA_SIZE = 2;
+    static const uint8_t SERIAL_DATA_SIZE = 3;
 
     typedef struct {
         uint8_t header;
         uint8_t cmd;
         uint8_t data[SERIAL_DATA_SIZE];
         uint8_t tail;
-    } serial_data_t;
+    } __attribute__((packed)) serial_data_t;
 
     enum SERIAL_CMD {
         S_CMD_TIME  = 0x00,
-        s_CMD_SDAYS = 0x01
+        S_CMD_DATE  = 0x01,
+        S_CMD_SDAYS = 0x02
     };
 
     CONFIG_STATES config_state;
@@ -72,9 +74,13 @@ class ConfigManager {
     void parseSerialData(void);
     void parseIRData(void);
 
+    void setTime(Calendar::time_t &time);
+    void setDate(Calendar::date_t &date);
+
   public:
     static ConfigManager *getInstance(void);
-    void run(void);
+    void                  serialCallback(uint8_t data);
+    void                  run(void);
 };
 
 #endif   // End of _CONFIG_MANAGER_H_

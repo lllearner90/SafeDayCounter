@@ -10,6 +10,7 @@
  *  Includes
  */
 #include <cstring>
+#include <queue>
 #include <string>
 
 #include "config_manager.h"
@@ -23,10 +24,13 @@ extern IRDA_HandleTypeDef hirda1;
 extern UART_HandleTypeDef huart2;
 
 static const std::string secret_key       = "1234";
-static ConfigManager    *instance         = nullptr;
-static Display          *display_instance = nullptr;
-static const char       *logger_tag       = "ConfigM";
+static const char       *logger_tag       = "CM";
+
+static ConfigManager    *instance           = nullptr;
+static Display          *display_instance   = nullptr;
 static SafeDays         *safe_days_instance = nullptr;
+
+std::queue<uint8_t> rx_queue;
 
 ConfigManager *ConfigManager::getInstance(void) {
     // If no instance is created yet, create an instance of config manager
@@ -36,6 +40,10 @@ ConfigManager *ConfigManager::getInstance(void) {
 
     if (nullptr == display_instance) {
         display_instance = Display::getInstance();
+    }
+
+    if (nullptr == safe_days_instance) {
+        safe_days_instance = SafeDays::getInstance();
     }
 
     return instance;
@@ -51,21 +59,41 @@ void ConfigManager::run(void) {
     parseIRData();
 }
 
-void ConfigManager::parseSerialData(void) {
-    serial_data_t     config_data{0};
-    HAL_StatusTypeDef status = HAL_UART_Receive(
-        &huart2, (uint8_t *) &config_data, sizeof(config_data), 100);
+void ConfigManager::serialCallback(uint8_t data) { rx_queue.push(data); }
 
-    if (status == HAL_OK) {
+void ConfigManager::parseSerialData(void) {
+    serial_data_t config_data{0};
+
+    while (rx_queue.size() >= sizeof(config_data)) {
+        for (auto i = 0; i < sizeof(config_data); i++) {
+            reinterpret_cast<uint8_t *>(&config_data)[i] = rx_queue.front();
+            rx_queue.pop();
+        }
+
         if (SERIAL_HEADER == config_data.header) {
             elog_d(logger_tag, "S: Header valid");
+
             int day_cnt = 0;
+            Calendar::time_t time    = {0};
+            Calendar::date_t date    = {0};
+
             switch (config_data.cmd) {
             case SERIAL_CMD::S_CMD_TIME:
                 elog_d(logger_tag, "S: Cmd byte TIME received!");
+                time.hours   = config_data.data[0];
+                time.minutes = config_data.data[1];
+                setTime(time);
                 break;
 
-            case SERIAL_CMD::s_CMD_SDAYS:
+            case SERIAL_CMD::S_CMD_DATE:
+                elog_d(logger_tag, "S: Cmd byte DATE received!");
+                date.day   = config_data.data[0];
+                date.month = (Calendar::Months) config_data.data[1];
+                date.year  = config_data.data[2];
+                setDate(date);
+                break;
+
+            case SERIAL_CMD::S_CMD_SDAYS:
                 elog_d(logger_tag, "S: Cmd byte TIME received!");
                 std::memcpy(&day_cnt, config_data.data, SERIAL_DATA_SIZE);
                 safe_days_instance->setSafeDaysCount(day_cnt);
@@ -77,6 +105,39 @@ void ConfigManager::parseSerialData(void) {
                 break;
             }
         }
+    }
+}
+
+void ConfigManager::setTime(Calendar::time_t &time) {
+    extern RTC_HandleTypeDef hrtc;
+    RTC_TimeTypeDef          sTime = {0};
+
+    sTime.Hours          = time.hours;
+    sTime.Minutes        = time.minutes;
+    sTime.Seconds        = 0x0;
+    sTime.SubSeconds     = 0x0;
+    sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+    if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK) {
+        elog_a(logger_tag, "Set Time failed!");
+    } else {
+        elog_i(logger_tag, "Set Time success!");
+    }
+}
+
+void ConfigManager::setDate(Calendar::date_t &date) {
+    extern RTC_HandleTypeDef hrtc;
+    RTC_DateTypeDef          sDate = {0};
+
+    // sDate.WeekDay = RTC_WEEKDAY_SATURDAY;
+    sDate.Month = (uint8_t) date.month;
+    sDate.Date  = date.day;
+    sDate.Year  = date.year;
+
+    if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK) {
+        elog_a(logger_tag, "Set Date failed!");
+    } else {
+        elog_i(logger_tag, "Set Date success!");
     }
 }
 

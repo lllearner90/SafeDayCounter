@@ -1,8 +1,10 @@
 #include "calendar.h"
 #include <cstdlib>
+#include <ctime>
 
 static const int DaysInMonth[12] = {31,  59,  90,  120, 151, 181,
                                     212, 243, 273, 304, 334, 365};
+static const int kCENTURY        = 100;
 
 bool operator==(const Calendar::date_t &lhs_date,
                 const Calendar::date_t &rhs_date) {
@@ -55,24 +57,21 @@ bool operator<(const Calendar::date_t &lhs_date,
 
 int Calendar::getNumOfDays(const Calendar::date_t &lhs_date,
                            const Calendar::date_t &rhs_date) {
-    Calendar::date_t start_date = lhs_date;
-    Calendar::date_t end_date   = rhs_date;
+    std::tm start{.tm_mday = lhs_date.day,
+                  .tm_mon  = (uint8_t) lhs_date.month - 1,
+                  .tm_year = lhs_date.year + kCENTURY};
+    std::tm end{.tm_mday = rhs_date.day,
+                .tm_mon  = (uint8_t) rhs_date.month - 1,
+                .tm_year = rhs_date.year + kCENTURY};
 
-    long int num_of_days_1 = start_date.year * 365 + start_date.day;
+    std::time_t start_time = std::mktime(&start);
+    std::time_t end_time   = std::mktime(&end);
 
-    // Add days for months in given date
-    num_of_days_1 += DaysInMonth[static_cast<int>(start_date.month) - 1];
+    double difference = std::difftime(end_time, start_time);
 
-    num_of_days_1 += getLeapYearCount(start_date);
+    int num_of_days = difference / (60 * 60 * 24);
 
-    long int num_of_days_2 = end_date.year * 365 + end_date.day;
-
-    // Add days for months in given date
-    num_of_days_2 += DaysInMonth[static_cast<int>(end_date.month) - 1];
-
-    num_of_days_2 += getLeapYearCount(end_date);
-
-    return (num_of_days_1 - num_of_days_2);
+    return abs(num_of_days);
 }
 
 int Calendar::getLeapYearCount(const Calendar::date_t &date) {

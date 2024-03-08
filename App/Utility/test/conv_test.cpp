@@ -2,7 +2,8 @@
 #include <gtest/gtest.h>
 
 TEST(FloatToString, Resolution) {
-    char buf[5] = "";
-    floatToChar(3.14, buf, 2, sizeof(buf));
-    EXPECT_STREQ("3.14", buf);
+    char  buf[5] = "0000";
+    float count  = ((float) 158) / 365;
+    floatToChar(count, buf, 2, sizeof(buf));
+    EXPECT_STREQ("0.43", buf);
 }

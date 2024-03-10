@@ -93,7 +93,7 @@ void Display::update(void) {
         TIME
     } update_state   = DAYS_CNT;
     uint16_t data    = 0;
-    char     year[6] = "";
+    char     year[6] = "00000";
 
     switch (update_state) {
     case DAYS_CNT:

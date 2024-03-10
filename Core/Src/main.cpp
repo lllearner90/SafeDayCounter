@@ -67,7 +67,7 @@ const osThreadAttr_t IdleTask_attributes = {
 osThreadId_t         DisplayTaskHandle;
 const osThreadAttr_t DisplayTask_attributes = {
   .name       = "DisplayTask",
-  .stack_size = 128 * 4,
+  .stack_size = 128 * 8,
   .priority   = (osPriority_t) osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
@@ -92,6 +92,7 @@ const osSemaphoreAttr_t elog_async_attributes = {.name = "elog_async"};
 /* Definitions for elog_dma_lock */
 osSemaphoreId_t         elog_dma_lockHandle;
 const osSemaphoreAttr_t elog_dma_lock_attributes = {.name = "elog_dma_lock"};
+uint8_t                 rx_buf[8]                = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -121,8 +122,8 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
     if (huart->Instance == huart2.Instance) {
         static ConfigManager *cm_instance = ConfigManager::getInstance();
-        cm_instance->serialCallback(huart->pRxBuffPtr[0]);
-        HAL_UART_Receive_IT(&huart2, huart2.pRxBuffPtr, 1);
+        cm_instance->serialCallback(rx_buf[0]);
+        HAL_UART_Receive_IT(&huart2, rx_buf, 1);
     }
 }
 /* USER CODE END 0 */
@@ -319,8 +320,8 @@ static void MX_CRC_Init(void) {
 static void MX_RTC_Init(void) {
 
     /* USER CODE BEGIN RTC_Init 0 */
-    const uint32_t rtc_signature_0   = 0x00AA55FF;
-    const uint32_t rtc_signature_1   = 0x00FFAA55;
+    const uint32_t rtc_signature_0   = 0x005555FE;
+    const uint32_t rtc_signature_1   = 0x00FFAA54;
     bool           is_rtc_data_valid = false;
     /* USER CODE END RTC_Init 0 */
 
@@ -357,8 +358,8 @@ static void MX_RTC_Init(void) {
 
         /** Initialize RTC and set the Time and Date
          */
-        sTime.Hours          = 18;
-        sTime.Minutes        = 30;
+        sTime.Hours          = 23;
+        sTime.Minutes        = 58;
         sTime.Seconds        = 0x0;
         sTime.SubSeconds     = 0x0;
         sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
@@ -368,7 +369,7 @@ static void MX_RTC_Init(void) {
         }
         sDate.WeekDay = RTC_WEEKDAY_SATURDAY;
         sDate.Month   = RTC_MONTH_FEBRUARY;
-        sDate.Date    = 3;
+        sDate.Date    = 29;
         sDate.Year    = 24;
 
         if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN) != HAL_OK) {
@@ -441,7 +442,7 @@ static void MX_USART1_IRDA_Init(void) {
 
     /* USER CODE END USART1_Init 1 */
     hirda1.Instance            = USART1;
-    hirda1.Init.BaudRate       = 115200;
+    hirda1.Init.BaudRate       = 9600;
     hirda1.Init.WordLength     = IRDA_WORDLENGTH_8B;
     hirda1.Init.Parity         = IRDA_PARITY_NONE;
     hirda1.Init.Mode           = IRDA_MODE_TX_RX;
@@ -492,11 +493,12 @@ static void MX_USART2_UART_Init(void) {
         != HAL_OK) {
         Error_Handler();
     }
-    if (HAL_UARTEx_DisableFifoMode(&huart2) != HAL_OK) {
+    if (HAL_UARTEx_EnableFifoMode(&huart2) != HAL_OK) {
         Error_Handler();
     }
     /* USER CODE BEGIN USART2_Init 2 */
-    HAL_UART_Receive_IT(&huart2, huart2.pRxBuffPtr, 1);
+    huart2.pRxBuffPtr = rx_buf;
+    HAL_UART_Receive_IT(&huart2, rx_buf, 1);
     /* USER CODE END USART2_Init 2 */
 }
 

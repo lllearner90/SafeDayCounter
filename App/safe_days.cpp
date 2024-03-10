@@ -34,7 +34,7 @@ SafeDays *SafeDays::getInstance(void) {
 }
 
 SafeDays::SafeDays(/* args */)
-    : safe_days_count{0}, safe_year_count{0}, stored_date{0} {
+    : safe_days_count{158}, safe_year_count{0}, stored_date{0} {
     // TODO :Read the values from persistent memory
     bool is_valid = validateSafeDayDatabase();
     if (is_valid) {
@@ -46,6 +46,7 @@ SafeDays::SafeDays(/* args */)
         elog_i(logger_tag, "Invalid Data!");
         Calendar        *calendar_instance = CalendarSTM32::getInstance();
         Calendar::date_t current_date      = calendar_instance->getDate();
+        calSafeYearsCount(safe_days_count);
         storeSafeDayCountToMemory();
         storeSafeYearCountToMemory();
 
@@ -53,6 +54,8 @@ SafeDays::SafeDays(/* args */)
         stored_date = current_date;
         storeStoredDateToMemory();
     }
+    elog_d(logger_tag, "Init details:\nsafe_day = %d\n safe_year = %f",
+           safe_days_count, safe_year_count);
 }
 
 int SafeDays::getSafeDaysCount(void) { return safe_days_count; }
@@ -75,6 +78,7 @@ void SafeDays::IncrementSafeYears(void) {
 
 void SafeDays::setSafeDaysCount(const int days) {
     safe_days_count = days;
+    elog_d(logger_tag, "New Safe Day count: %d", safe_days_count);
     // store to persistent memory
     storeSafeDayCountToMemory();
     calSafeYearsCount(safe_days_count);
@@ -82,12 +86,14 @@ void SafeDays::setSafeDaysCount(const int days) {
 
 void SafeDays::setSafeYearsCount(const int years) {
     safe_year_count = years;
+    elog_d(logger_tag, "New Safe Year count: %f", safe_year_count);
     // store to persistent memory
     storeSafeYearCountToMemory();
 }
 
 void SafeDays::calSafeYearsCount(const int safe_days_cnt) {
     safe_year_count = (float) safe_days_cnt / kDAYS_IN_A_YEAR;
+    elog_d(logger_tag, "Calc safe year count: %f", safe_year_count);
     storeSafeYearCountToMemory();
 }
 
@@ -165,7 +171,8 @@ void SafeDays::storeStoredDateToMemory(void) {
     std::memcpy(
         &safe_day_database[(uint8_t) SAFE_DAY_DATABASE_MAP::STORED_DATE_OFFSET],
         &stored_date, sizeof(stored_date));
-
+    elog_d(logger_tag, "new date to memory: %d/%d/%d", stored_date.day,
+           (uint8_t) stored_date.month, stored_date.year);
     if (false == updateMemoryBlockCrc()) {
         // todo: log to console
     }

@@ -19,6 +19,7 @@
 #include "TLC591x.h"
 #include "cmsis_os.h"
 #include "stm32g0xx_hal.h"
+#include <cstring>
 
 extern SPI_HandleTypeDef hspi1;
 
@@ -140,20 +141,22 @@ void TLC591x::print(const char *s) {
     char    c;
     uint8_t pos;
     bool    dp_requested = false;
-
-    for (i = numchips - 1; i >= 0; i--) {
+    size_t  len_of_input = strlen(s);
+    len_of_input         = len_of_input - 1;
+    for (i = numchips - 1; (i >= 0) && (len_of_input >= 0); i--) {
         // Need a range check and adjustment, since segment map starts
         // at ASCII 32 (element 0) and ends at ASCII 0x7f (element 96)
         // Out of range default to a blank character
         // if (s[i] > 127) pos = 0; --> This would be a negative value, included
         // in next check
-        if (s[i] == '.') {
+        if (s[len_of_input] == '.') {
             dp_requested = true;
-        }
-        else {
-            if (s[i] < 32) { pos = 0; }
-            else {
-                pos = s[i] - 32;
+            i++;
+        } else {
+            if (s[len_of_input] < 32) {
+                pos = 0;
+            } else {
+                pos = s[len_of_input] - 32;
             }
 
             c = ICM7218_segment_map[pos];
@@ -165,6 +168,7 @@ void TLC591x::print(const char *s) {
             // write(c);
             sendValue(c);
         }
+        len_of_input--;
     }
     toggleLE();
 }
